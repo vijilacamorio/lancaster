@@ -2545,7 +2545,7 @@ public function manual_sales_insert(){
 
     //Manage invoice list
 
-    public function manage_invoice() {
+    public function manage_invoice() {  // no need of this function
 
         $this->session->unset_userdata('invoiceid');
 
@@ -2593,65 +2593,109 @@ public function manual_sales_insert(){
 
     }
 
+    public function manageInvoice() {
+
+        $this->session->unset_userdata('invoiceid');
+
+        $this->session->unset_userdata('nation');
+    $date = $this->input->post("daterangepicker-field");
 
 
+        $this->auth->check_admin_auth();
 
+        $this->load->library('linvoice');
 
-// $uid=$_SESSION['user_id'];
+        $this->load->model('Invoices');
 
-//  $sql='select c.* from company_information c 
+        $setting_detail = $this->Web_settings->retrieve_setting_editdata();
+ 
+        $value = $this->linvoice->invoice_list();
+
+        $sale = $this->Invoices->newsale($date);
+        
+        $email_settings = $this->Invoices->getEmailConfigdata();
+
+        $currency_details = $this->Web_settings->retrieve_setting_editdata();
+        // print_r($currency_details);
+        $data['currency']          = $currency_details[0]['currency'];
     
-//     join 
-//     user_login as u 
-//     on u.cid=c.company_id
-//     where u.user_id='.$uid;
-//     $query=$this->db->query($sql);
 
-//     $company_info=$query->result_array();
+        $data = array(
+            'invoice'         =>  $value,
 
+            'sale' => $sale,
+            
+            'email_settings' => $email_settings,
+            
+          'setting_detail' => $setting_detail
 
-//  $sql='SELECT c.* from invoice i JOIN customer_information c on c.customer_id=i.customer_id where i.invoice_id='.$uid;
-//     $query=$this->db->query($sql);
+        );
+        // print_r($sale);
+        $content = $this->load->view('invoice/invoice_list', $data, true);
+    
+        $this->template->full_admin_html_view($content);
+      
 
-//     $customer_info=$query->result_array();
-
-
-
-
-//   $sql='SELECT p.* FROM `invoice_details` i JOIN
-
-//  product_information p
-//  on p.product_id=i.product_id
-
-//  where 
-//  i.invoice_id="'.$invoiceid.'";
-//  ';
-
-//     $query=$this->db->query($sql);
-
-//     $product_info=$query->result_array();
-
-
-
-//     $data['company_info']=$company_info;
-//     $data['customer_info']=$customer_info;
-//     $data['product_info']=$product_info;
-//     $data['invoiceid']=$invoiceid;
-
-
-
-
-//     $content = $this->load->view('pdf_attach_mail/new_sale', $data, true);
-//     if($content)
-//     {
-//   redirect("Cinvoice/manage_invoice");
-// }
-//          // $this->template->full_admin_html_view($content);
-// }   
-
-
-
-
+    }
+    public function getInvoiceData(){
+		$encodedId      = isset($_GET['id']) ? $_GET['id'] : null;
+        $decodedId      = decodeBase64UrlParameter($encodedId);
+        $limit          = $this->input->post('length');
+        $start          = $this->input->post('start');
+        $search         = $this->input->post('search')['value'];
+        $orderField     = $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'] =='sl' ? 'id' : $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'];
+        $orderDirection = $this->input->post('order')[0]['dir'];
+        $totalItems     = $this->sales_model->getOceanExportCount($search, $decodedId);
+        $items          = $this->sales_model->getOceanExportsdata($limit, $start, $orderField, $orderDirection, $search, $decodedId);
+        $data           = [];
+        $sl             = $start + 1;
+        $jsaction = "return confirm('Are You Sure ?')";
+        foreach ($items as $record) {
+            $button = '';
+           //if($this->permission1->method('manage_supplier','update')->access()){
+                $button .='<a href="'.base_url().'sales/oceanExportTrackingEdit/'.$record->id.'?id='.$encodedId.'" class="btnclr btn btn-xs"  data-placement="left" title="'. display('update').'"><i class="fa fa-edit"></i></a> ';
+           // }
+          // if($this->permission1->method('manage_supplier','delete')->access()){
+                 $button .='<a href="#" onclick="deleteOceanExpTrac('.$record->id.','.$decodedId.')" class="btn btnclr btn-xs" onclick="'.$jsaction.'" ><i class="fa fa-trash"></i></a>';
+          // }
+            $data[] = array( 
+                'sl'               	=> $sl,
+                'booking_no'    	=> html_escape($record->booking_no),
+                'container_no'      => html_escape($record->container_no),
+                'seal_no'           => html_escape($record->seal_no),
+                'ocean_export_tracking_id'    => html_escape($record->ocean_export_tracking_id),
+                'supplier_name'     => html_escape($record->supplier_name),
+                'invoice_date'   	=> html_escape($record->invoice_date),
+                'place_of_delivery' => html_escape($record->place_of_delivery),
+                'notify_party'      => html_escape($record->notify_party),
+                'vessel'          	=> html_escape($record->vessel),
+                'voyage_no'     	=> html_escape($record->voyage_no),
+                'freight_forwarder' => html_escape($record->freight_forwarder),
+                'hbl_no'      		=> html_escape($record->hbl_no),
+                'obl_no'    		=> html_escape($record->obl_no),
+                'ams_no'            => html_escape($record->ams_no),
+                'isf_no'     		=> html_escape($record->isf_no),
+                'mbl_no'            => html_escape($record->mbl_no),
+                'port_of_discharge' => html_escape($record->port_of_discharge),
+                'customs_broker_name' => html_escape($record->customs_broker_name),
+                'etd'     			=> html_escape($record->etd),
+                'consignee'     	=> html_escape($record->consignee),
+                'port_of_loading'   => html_escape($record->port_of_loading),
+                'eta'     			=> html_escape($record->eta),
+                'particular'     	=> html_escape($record->particular),
+                'etd'     			=> html_escape($record->etd),
+                'button'           => $button
+            );
+                $sl++;
+        }
+        $response = [
+            "draw"            => $this->input->post('draw'),
+            "recordsTotal"    => $totalItems,
+            "recordsFiltered" => $totalItems,
+            "data"            => $data,
+        ];
+        echo json_encode($response);
+	}
 public function manage_profarma_invoice() {
     $this->session->unset_userdata('perfarma_invoice_id');
     $date = $this->input->post("daterangepicker-field");

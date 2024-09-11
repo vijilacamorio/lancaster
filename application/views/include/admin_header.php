@@ -380,32 +380,30 @@
              ?>
       <!-- user 2 -->
       <ul class="sidebar-menu">
-      <li class="active">
-         <a href="<?php echo base_url(); ?>/"><i class="ti-dashboard"></i> <span><?php  echo display('dashboard'); ?></span>
+      <li class="<?php echo ($this->uri->segment(1) =='' ? 'active' : ''); ?>">
+         <a href="<?php echo base_url(); ?>"><i class="ti-dashboard"></i> <span><?php  echo display('dashboard'); ?></span>
          <span class="pull-right-container">
          <span class="label label-success pull-right"></span>
          </span>
          </a>
       </li>
       <?php 
-         foreach(  $this->session->userdata('admin_data') as $admtest){
+         foreach($this->session->userdata('admin_data') as $admtest){
             // echo $admtest; die();
          $split=explode('-',$admtest);
          if(trim($split[0])=='sale'){
           ?>
       <!-- Invoice menu start -->
-      <li class="treeview  ">
+      <li class="treeview <?php echo ($this->uri->segment(1) =='Cinvoice' &&  ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''); ?>">
          <a href="#">
-         <i class="fa fa-balance-scale"></i><span><?php echo display('invoice');?></span>
-         <span class="pull-right-container">
-         <i class="fa fa-angle-left pull-right"></i>
-         </span>
+            <i class="fa fa-balance-scale"></i><span><?php echo display('invoice');?></span>
+            <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+            </span>
          </a>
-         <ul class="treeview-menu">
-            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_invoice"><?php echo display('Create Invoice');?></a></li>
-            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_profarma_invoice"><?php echo 'Create Estimate';?></a></li>
-            <!-- <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_ocean_export_tracking"><?php echo display('Ocean Export Tracking');?></a></li>
-            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_trucking"><?php echo display('Road Transport');?></a></li> -->
+         <ul class="treeview-menu <?php echo ($this->uri->segment(1) =='Cinvoice' &&  ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''); ?>">
+            <li class="treeview  <?php echo ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''; ?>"><a href="<?php echo base_url(); ?>Cinvoice/ManageInvoice"><?php echo display('Create Invoice');?></a></li>
+            <li class="treeview  "><a href="<?php echo base_url(); ?>Cinvoice/manage_profarma_invoice"><?php echo 'Create Estimate';?></a></li>
          </ul>
       </li>
       <?php 
