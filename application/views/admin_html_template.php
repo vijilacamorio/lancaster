@@ -43,7 +43,8 @@
         <!-- slider  -->
         <link href="<?php echo base_url(); ?>assets/css/select2.min.css" rel="stylesheet" type="text/css"/> 
         <!-- DataTables CSS -->
-        <link href="<?php echo base_url('assets/datatables/dataTables.min.css') ?>" rel="stylesheet" type="text/css"/> 
+        <link href="<?php echo base_url('assets/datatables/jquery.dataTables.css') ?>" rel="stylesheet" type="text/css"/> 
+        <link href="<?php echo base_url('assets/datatables/colReorder.dataTables.min.css') ?>" rel="stylesheet" type="text/css"/> 
           <!-- pe-icon-7-stroke -->
         <link href="<?php echo base_url('assets/css/pe-icon-7-stroke.css') ?>" rel="stylesheet" type="text/css"/> 
         <!-- themify icon css -->
