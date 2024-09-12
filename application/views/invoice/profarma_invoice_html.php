@@ -100,8 +100,8 @@ footer { position: fixed; left: 0px; right: 0px; height: 80px;text-align: center
                   <h3  style="text-align: center;font-weight:bold;" >Performance Invoice</h3>
                </div>
                <div class="col-sm-6" style="text-align:left;margin-left:550px; margin-top:-80px; font-size:15px;" >
-                  <b><?php echo display('Invoice Number') ?> :</b><?php  echo $chalan_no; ?> <br>
-                  <b>  <?php echo ('Date') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b><?php  echo $purchase_date; ?><br>
+                  <b><?php echo display('Invoice Number') ?> :</b>&nbsp;<?php  echo $chalan_no; ?> <br>
+                  <b>  <?php echo ('Date') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b>&nbsp;<?php  echo $purchase_date; ?><br>
                </div>
 
             </div>
@@ -119,8 +119,7 @@ footer { position: fixed; left: 0px; right: 0px; height: 80px;text-align: center
             
                     <div class="col-sm-6"   style="color:black; font-size:12px;">
                         <div class="col-sm-8"  style="margin-left:25px;">
-                        <b><span style="font-weight:bold;">Company Information</span><br> 
-                        <b><span style="font-weight:bold;"><?php echo $cname; ?></span><br>
+                         <b><span style="font-weight:bold;"><?php echo $cname; ?></span><br>
                         <b><span style="font-weight:1;"><?php echo $address; ?><br>
                         <b><span style="font-weight:1;"><?php echo $email; ?><br>
                         <b><span style="font-weight:1;"><?php echo $phone; ?><br>
@@ -199,7 +198,7 @@ footer { position: fixed; left: 0px; right: 0px; height: 80px;text-align: center
                         
                         <table style="margin-left:550px;font-size:11px;">
                        
-                            <?php if ($cname == 'Lancaster Stones LLC'): ?>
+                            <?php if ($cname == 'Lancaster Stones'): ?>
                             <?php else: ?>
                                 <tr>
                                     <td>
@@ -223,7 +222,19 @@ footer { position: fixed; left: 0px; right: 0px; height: 80px;text-align: center
                                 <td><b><?php echo display('GRAND TOTAL'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <?php echo $currency . $purchase_info[0]['gtotal']; ?></td>
                             </tr>
                             <tr>
-                                <td><b><?php echo display('Amount Paid'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <?php echo $currency . " " . $purchase_info[0]['amt_paid']; ?></td>
+                                <td><b><?php echo display('Amount Paid'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> 
+                                
+                             
+                                <?php
+                                if (!$purchase_info[0]['amt_paid']) {
+                                    echo $currency ." "."0.00";
+                                } else {
+                                    echo $currency ." ".$purchase_info[0]['amt_paid'];
+                                }
+                                ?>
+ 
+
+                           
                             </tr>
 
 
@@ -264,7 +275,7 @@ footer { position: fixed; left: 0px; right: 0px; height: 80px;text-align: center
                        ?>
 <br>
 <div class="footer-signature" style="margin-left:550px;">
-        <div class="signature-line">_____________________________</div>
+        <div class="signature-line">____________________</div>
         <div class="signature-label" style="text-align:center;"><b>Signature</br></div>
 
     </div>
