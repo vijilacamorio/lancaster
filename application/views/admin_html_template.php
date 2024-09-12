@@ -123,15 +123,15 @@
         <script src="<?php echo base_url() ?>assets/js/jquery-ui-timepicker-addon.min.js" type="text/javascript"></script> 
         <!-- select2 js -->
         <script src="<?php echo base_url() ?>assets/js/select2.min.js" type="text/javascript"></script>
-        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/plugins/datatables/jquery.dataTables.js"></script>
-        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/plugins/datatables/dataTables.colReorder.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/plugins/datatables/buttons.dataTables.min.css">
-        <script type="text/javascript" src="<?php echo base_url(); ?>assets/plugins/datatables/dataTables.buttons.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>assets/plugins/datatables/buttons.colVis.min.js"></script>
-        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/plugins/datatables/pdfmake.min.js"></script>
-        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/plugins/datatables/vfs_fonts.js"></script>
-        <script src="<?php echo base_url(); ?>assets/plugins/datatables/buttons.html5.min.js"></script>
-        <script src="<?php echo base_url(); ?>assets/plugins/datatables/buttons.print.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/datatables/jquery.dataTables.js"></script>
+        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/datatables/dataTables.colReorder.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/datatables/buttons.dataTables.min.css">
+        <script type="text/javascript" src="<?php echo base_url(); ?>assets/datatables/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>assets/datatables/buttons.colVis.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/datatables/pdfmake.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="<?php echo base_url(); ?>assets/datatables/vfs_fonts.js"></script>
+        <script src="<?php echo base_url(); ?>assets/datatables/buttons.html5.min.js"></script>
+        <script src="<?php echo base_url(); ?>assets/datatables/buttons.print.min.js"></script>
 
 
         <!-- ChartJs JavaScript -->
