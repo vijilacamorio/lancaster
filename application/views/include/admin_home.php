@@ -796,10 +796,12 @@
 <!-- /.content-wrapper -->
 <!-- Admin Home end -->
 <!-- ChartJs JavaScript -->
-<!-- partial --> <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<!-- partial --> 
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-debug.js'></script>
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
@@ -957,9 +959,10 @@
    // $('#t_xp_a').html($("#currency").val()+''+$('#exp_paid').val());
    // $('#t_xd_a').html($("#currency").val()+''+$('#exp_due').val());
    //   sessionStorage.clear();
+
    var today = new Date();
    var dd = String(today.getDate()).padStart(2, '0');
-   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+   var mm = String(today.getMonth() + 1).padStart(2, '0');
    var yyyy = today.getFullYear();
    today = yyyy + '-' + mm + '-' + dd;
    var firstdate = new Date().getFullYear()+'-01-01';
@@ -1097,6 +1100,8 @@
       ajaxLoadChart(start, end);
       
    });
+   
+
    
    // The tooltip shown over the chart
    var tt = $('<div class="ex-tooltip">').appendTo('body'),
