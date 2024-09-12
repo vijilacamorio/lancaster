@@ -27,7 +27,6 @@ public function state_tax_list()
     $this->db->where('tax_type', 'state_tax');
     $this->db->where('created_by', $user_id);
     $query = $this->db->get('tax_history');
-    // echo $this->db->last_query(); die();
     if ($query->num_rows() > 0) {
         return $query->result_array();
     } else {
@@ -63,7 +62,7 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
     $this->db->join('info_payslip b', 'b.templ_name = a.templ_name');
     $this->db->join('employee_history c', 'c.id = b.templ_name');
     $this->db->join('tax_history_employer d', 'd.time_sheet_id = a.timesheet_id', 'left');
- $this->db->where("TRIM(d.tax_type) != 'local_tax'");
+    $this->db->where("TRIM(d.tax_type) != 'local_tax'");
     if ($date) {
         $dates = explode(' - ', $date);
         $this->db->where("((a.start BETWEEN '$dates[0]' AND '$dates[1]') OR (a.end BETWEEN '$dates[0]' AND '$dates[1]' AND a.end <= '$dates[1]'))");
@@ -71,7 +70,6 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
 
     if ($taxType !== '') {
         $trimmed_taxType = trim($taxType);
-        // Escape special characters and apply the LIKE condition
         $this->db->like("TRIM(d.tax)", $trimmed_taxType, 'none');
     }
 
@@ -94,15 +92,15 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
     }
 
     $this->db->where('a.create_by', $user_id);
-    $this->db->group_by('a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.amount'); // Group by to aggregate the sum
+    $this->db->group_by('a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.amount'); 
 
     $query = $this->db->get();
     $resultRows = $query->result_array();
-  //echo $this->db->last_query();
-  //print_r($resultRows);die();
     return $resultRows;
     
 }
+
+
 public function sc_get_data_pay($d1 = null, $empid, $timesheetid)
         {
             if ($d1 === null || $empid === null || $timesheetid === null) {
@@ -1050,7 +1048,8 @@ public function social_tax_sumary()
         return array_values($sums); //die();
     }
     return false;
-    }
+}
+
 public function social_tax()
 {
     
@@ -1191,11 +1190,9 @@ public function employe($emp_name = null, $date = null)
 
 public function employr($emp_name = null, $date = null)
 {
-$user_id = $this->session->userdata('user_id');
-    
-    // Constructing the main query
-    $this->db->distinct(); // Adding DISTINCT
-    $this->db->select('b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax,c.employee_tax,b.time_sheet_id, c.first_name, c.middle_name, c.last_name'); // Remove DISTINCT from select
+    $user_id = $this->session->userdata('user_id');
+    $this->db->distinct(); 
+    $this->db->select('b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax,c.employee_tax,b.time_sheet_id, c.first_name, c.middle_name, c.last_name'); 
     $this->db->from('tax_history_employer b');
     $this->db->join('employee_history c', 'c.id = b.employee_id');
     $this->db->join('timesheet_info a', 'a.timesheet_id = b.time_sheet_id');
@@ -1211,16 +1208,22 @@ $user_id = $this->session->userdata('user_id');
         $this->db->group_end();
     }
     if ($date) {
-        $dates = explode(' - ', $date);
-        $start_date = date('m/d/Y', strtotime($dates[0]));
-        $end_date = date('m/d/Y', strtotime($dates[1]));
-       // echo $start_date;
-        $this->db->group_start();
-        $this->db->where("(a.start) BETWEEN '$start_date' AND '$end_date'");
-        $this->db->or_where("(a.end) BETWEEN '$start_date' AND '$end_date'");
-        $this->db->or_where("(a.start) <= '$start_date' AND (a.end) >= '$end_date'");
-        $this->db->group_end();
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];  
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
     }
+    // if ($date) {
+    //     $dates = explode(' - ', $date);
+    //     $start_date = date('m/d/Y', strtotime($dates[0]));
+    //     $end_date = date('m/d/Y', strtotime($dates[1]));
+    //    // echo $start_date;
+    //     $this->db->group_start();
+    //     $this->db->where("(a.start) BETWEEN '$start_date' AND '$end_date'");
+    //     $this->db->or_where("(a.end) BETWEEN '$start_date' AND '$end_date'");
+    //     $this->db->or_where("(a.start) <= '$start_date' AND (a.end) >= '$end_date'");
+    //     $this->db->group_end();
+    // }
     
     $query = $this->db->get();
 
@@ -3842,11 +3845,10 @@ public function get_taxname_living_biweekly($lst_name){
         $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
         
         if ($date) {
-            $dates = explode(' - ', $date);
-            $start_date = date('Y-m-d', strtotime($dates[0]));
-            $end_date = date('Y-m-d', strtotime($dates[1]));
-            
-            $subquery .= " AND (STR_TO_DATE(a.start, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.end, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.start, '%m/%d/%Y') <= '$start_date' AND STR_TO_DATE(a.end, '%m/%d/%Y') >= '$end_date')";
+            $dates = explode(' to ', $date);
+            $start_date = $dates[0];
+            $end_date = $dates[1];  
+            $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
         }
 
         if ($emp_name !== 'All') {
@@ -3856,8 +3858,7 @@ public function get_taxname_living_biweekly($lst_name){
         
         $subquery .= ")";
 
-        $this->db->select('a.month, b.timesheet_id, c.employee_tax, b.templ_name, c.first_name, c.middle_name, c.last_name, 
-            b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax');
+        $this->db->select('a.month, b.timesheet_id, c.employee_tax, b.templ_name, a.cheque_date, c.first_name, c.middle_name, c.last_name, b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax');
         
         $this->db->from('info_payslip b');
         $this->db->join('employee_history c', 'c.id = b.templ_name');
@@ -3880,6 +3881,7 @@ public function get_taxname_living_biweekly($lst_name){
         $this->db->order_by($orderField, $orderDirection);
         
         $query = $this->db->get();
+
         // echo $this->db->last_query(); die();
 
         if ($query === false) {
@@ -3897,11 +3899,10 @@ public function get_taxname_living_biweekly($lst_name){
         $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
         
         if ($date) {
-            $dates = explode(' - ', $date);
+            $dates = explode(' to ', $date);
             $start_date = date('Y-m-d', strtotime($dates[0]));
-            $end_date = date('Y-m-d', strtotime($dates[1]));
-            
-            $subquery .= " AND (STR_TO_DATE(a.start, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.end, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.start, '%m/%d/%Y') <= '$start_date' AND STR_TO_DATE(a.end, '%m/%d/%Y') >= '$end_date')";
+            $end_date = date('Y-m-d', strtotime($dates[1]));  
+            $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
         }
 
         if ($emp_name !== 'All') {
