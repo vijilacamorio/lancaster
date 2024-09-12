@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="<?php echo base_url() ?>assets/css/style.css">
+<link rel="stylesheet" href="<?php echo base_url() ?>assets/css/calanderstyle.css">
 <div class="content-wrapper">
    <section class="content-header" style="height: 60px;">
       <div class="header-icon">
@@ -90,9 +90,10 @@
    </section>
 </div>
 
+
 <script src='<?php echo base_url();?>assets/js/moment.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-debug.js'></script>
-<script  src="<?php echo base_url() ?>assets/js/scripts.js"></script> 
+      <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-debug.js'></script>
+      <script  src="<?php echo base_url() ?>assets/js/scripts.js"></script> 
 
 <script type="text/javascript">
 var federalincomeDataTable;
