@@ -72,6 +72,11 @@ public function formnj927()
         $content                   = $this->parser->parse('hr/reports/state_summary', $data, true);
         $this->template->full_admin_html_view($content);
     }
+    public function OverallSummary(){
+        $data['setting_detail']         = $this->Web_settings->retrieve_setting_editdata();
+        $content                   = $this->parser->parse('hr/reports/overall_state_summary', $data, true);
+        $this->template->full_admin_html_view($content);
+    }
 public function state_tax_search_summary() {
     $CI = get_instance();
     $CI->load->model('Web_settings');
@@ -2958,29 +2963,6 @@ public function checkTimesheet() {
           $content                  = $this->parser->parse('hr/edit_timesheet', $data, true);
          $this->template->full_admin_html_view($content);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public function time_list($timesheet_id = null,$templ_name)
         {
            $CI = & get_instance();
