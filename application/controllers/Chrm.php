@@ -1944,7 +1944,6 @@ if(isset($split[2])) {
                 );
             $this->db->insert('tax_history_employer',$data1);
           }
- 
             $sql = "DELETE t1
                 FROM tax_history t1
                 INNER JOIN tax_history t2 ON t1.id > t2.id

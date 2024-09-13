@@ -98,8 +98,6 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
 
     $query = $this->db->get();
     $resultRows = $query->result_array();
-  //echo $this->db->last_query();
-  //print_r($resultRows);die();
     return $resultRows;
     
 }
