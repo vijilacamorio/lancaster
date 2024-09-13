@@ -1522,7 +1522,7 @@ public function state_tax(){
 
 
 public function unemployment_tax_info($employee_status,$final,$unemployment_range){
-    $this->db->select('employee,employer');
+    $this->db->select('employee,employer,details');
     $this->db->from('federal_tax');
     $this->db->where($employee_status,$unemployment_range);
    $query = $this->db->get();
@@ -1533,6 +1533,8 @@ public function unemployment_tax_info($employee_status,$final,$unemployment_rang
 return 0;
     }
 }
+
+
 
 public function agent_list(){
     
@@ -1638,55 +1640,32 @@ public function get_tax_info($d1=null,$empid,$timesheetid){
 $this->db->select('tax, SUM(amount) as total_amount');
 $this->db->from('tax_history');
 $this->db->group_by('tax');
-// $this->db->select('SUM(CASE WHEN tax_history.tax_type = "local_tax" THEN tax_history.amount ELSE 0 END) as total_local_tax');
-// $this->db->select('SUM(CASE WHEN tax_history.tax_type = "state_tax" THEN tax_history.amount ELSE 0 END) as total_state_tax');
-// $this->db->from('tax_history');
-// $this->db->join('info_payslip', 'tax_history.employee_id = info_payslip.templ_name');
 $this->db->join('timesheet_info', 'tax_history.time_sheet_id = timesheet_info.timesheet_id');
 $this->db->where('tax_history.employee_id', $empid);
 $this->db->where('tax_history.created_by', $this->session->userdata('user_id'));
 $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') <= STR_TO_DATE('$d1', '%m/%d/%Y')", NULL, FALSE);
-
-$query = $this->db->get();
-
-//   echo $this->db->last_query(); 
-        if ($query->num_rows() > 0) {
+         $query = $this->db->get();
+         if ($query->num_rows() > 0) {
           return $query->result();
         }
         return false;
 }
 
-
-
-
-
-
-
  
-
-
-
  public function local_state_tax($employee_status,$final,$local_tax_range){
-  $this->db->select('employee,employer');
+        $this->db->select('employee,employer');
         $this->db->from('state_localtax');
         $this->db->where($employee_status,$local_tax_range);
-       $query = $this->db->get();
-//   echo  $this->db->last_query();die();
-       if ($query->num_rows() > 0) {
+        $this->db->not_like('tax', 'Unemployment');
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
            return $query->result_array();
         }
          return true;
 
  }
 
-
-
-
-
-
-
-
-
+ 
  
 public function sc_info_count($templ_name, $payperiod) {
     $date = explode('-', $payperiod);
@@ -3770,8 +3749,6 @@ if ($query->num_rows() > 0) {
 
   
 
-   
-
   public function get_taxname_living_hourly($lst_name){
     $user_id = $this->session->userdata('user_id');
     $this->db->select('tax');
@@ -3820,125 +3797,47 @@ public function get_taxname_living_biweekly($lst_name){
 
 
 
-    public function get_taxname_living_monthly($lst_name){
+public function get_taxname_living_monthly($lst_name){
+    $user_id = $this->session->userdata('user_id');
+    $this->db->select('tax');
+    $this->db->from('monthly_tax_info');
+    $this->db->where('create_by', $user_id); // Ensure you reference the correct table alias
+    $this->db->like('tax', 'Monthly '.$lst_name, 'after'); // This will match 'Maryland%' (Maryland at the start)
+    $query = $this->db->get();
+     if ($query->num_rows() > 0) {
+        return $query->result_array();
+     }
+    return true;
+}
+ 
+
+    public function get_employee_sal($id){
         $user_id = $this->session->userdata('user_id');
-        $this->db->select('tax');
-        $this->db->from('monthly_tax_info');
-        $this->db->where('create_by', $user_id); // Ensure you reference the correct table alias
-        $this->db->like('tax', 'Monthly '.$lst_name, 'after'); // This will match 'Maryland%' (Maryland at the start)
+        $this->db->select('h_rate,total_hours,extra_thisrate, SUM(extra_thisrate) as totalamout');
+        $this->db->from('timesheet_info');
+        $this->db->where('templ_name', $id); 
+        $this->db->where('create_by', $user_id); 
         $query = $this->db->get();
-        // echo $this->db->last_query(); die();
+         if ($query->num_rows() > 0) {
+            return $query->result_array();
+         }
+        return true;
+    }
+ 
+    public function total_unemployment($id){
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('SUM(unemployement_total) as unempltotal');
+        $this->db->from('tax_history_employer');
+        $this->db->where('employee_id', $id); 
+        // $this->db->where('tax', 'Unemployment'); 
+        $this->db->where('created_by', $user_id); 
+        $query = $this->db->get();
         if ($query->num_rows() > 0) {
             return $query->result_array();
          }
         return true;
     }
-    
-    // Paginated Federal income tax
-    public function getPaginatedfederalincometax($limit, $offset, $orderField, $orderDirection, $search, $date = null, $emp_name = 'All')
-    {
-        $user_id = $this->session->userdata("user_id");
 
-        $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
-        
-        if ($date) {
-            $dates = explode(' - ', $date);
-            $start_date = date('Y-m-d', strtotime($dates[0]));
-            $end_date = date('Y-m-d', strtotime($dates[1]));
-            
-            $subquery .= " AND (STR_TO_DATE(a.start, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.end, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.start, '%m/%d/%Y') <= '$start_date' AND STR_TO_DATE(a.end, '%m/%d/%Y') >= '$end_date')";
-        }
 
-        if ($emp_name !== 'All') {
-            $trimmed_emp_name = trim($emp_name);
-            $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
-        }
-        
-        $subquery .= ")";
-
-        $this->db->select('a.month, b.timesheet_id, c.employee_tax, b.templ_name, c.first_name, c.middle_name, c.last_name, 
-            b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax');
-        
-        $this->db->from('info_payslip b');
-        $this->db->join('employee_history c', 'c.id = b.templ_name');
-        $this->db->join('timesheet_info a', 'a.timesheet_id = b.timesheet_id');
-        $this->db->where("b.timesheet_id IN $subquery", NULL, FALSE);
-
-        if (!empty($search)) {
-            $this->db->group_start();
-            $this->db->like("b.timesheet_id", $search);
-            $this->db->or_like("c.first_name", $search);
-            $this->db->or_like("c.last_name", $search);
-            $this->db->or_like("c.middle_name", $search);
-            $this->db->or_like("c.employee_tax", $search);
-            $this->db->group_end();
-        }
-        
-        $this->db->where("b.create_by", $user_id);
-
-        $this->db->limit($limit, $offset);
-        $this->db->order_by($orderField, $orderDirection);
-        
-        $query = $this->db->get();
-        // echo $this->db->last_query(); die();
-
-        if ($query === false) {
-            return false;
-        }
-
-        return $query->result_array();
-    }
-    
-    // Total Income Tax 
-    public function getTotalfederalincometax($search, $date, $emp_name = 'All')
-    {
-        $user_id = $this->session->userdata("user_id");
-
-        $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
-        
-        if ($date) {
-            $dates = explode(' - ', $date);
-            $start_date = date('Y-m-d', strtotime($dates[0]));
-            $end_date = date('Y-m-d', strtotime($dates[1]));
-            
-            $subquery .= " AND (STR_TO_DATE(a.start, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.end, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' OR STR_TO_DATE(a.start, '%m/%d/%Y') <= '$start_date' AND STR_TO_DATE(a.end, '%m/%d/%Y') >= '$end_date')";
-        }
-
-        if ($emp_name !== 'All') {
-            $trimmed_emp_name = trim($emp_name);
-            $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
-        }
-        
-        $subquery .= ")";
-
-        $this->db->select('a.month');
-        
-        $this->db->from('info_payslip b');
-        $this->db->join('employee_history c', 'c.id = b.templ_name');
-        $this->db->join('timesheet_info a', 'a.timesheet_id = b.timesheet_id');
-        $this->db->where("b.timesheet_id IN $subquery", NULL, FALSE);
-
-        if (!empty($search)) {
-            $this->db->group_start();
-            $this->db->like("b.timesheet_id", $search);
-            $this->db->or_like("c.first_name", $search);
-            $this->db->or_like("c.last_name", $search);
-            $this->db->or_like("c.middle_name", $search);
-            $this->db->or_like("c.employee_tax", $search);
-            $this->db->group_end();
-        }
-
-        $this->db->where("b.create_by", $user_id);
-
-        $query = $this->db->get();
-    
-        if ($query === false) {
-            return false;
-        }
-
-        return $query->num_rows();
-    }
-
- 
 }
 
