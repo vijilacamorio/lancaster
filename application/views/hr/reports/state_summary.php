@@ -193,13 +193,13 @@
                             <td class="search_dropdown" style="color: black;">
                               <span>Tax Choice </span>
                               <select id="tax_Choice" name='tax_choice' class="tax_choice form-control" >
-                              
+                               <option value="All">All</option>
                                  <option value="living_state_tax">Living</option>
                                  <option value="state_tax">Working</option>
                               </select>
                             </td>
 
-                           <td class="search_dropdown" style="display:none;color: black;">
+                           <td class="search_dropdown" style="color: black;">
                               <span>State <span class="text-danger">*</span></span>
                               <select id="tax_Choice" name='selectState' class="selectState form-control" >
                                  <option value="">Select Your State</option>
@@ -211,7 +211,7 @@
                               </select>
                            </td>
 
-                             <td class="search_dropdown" style="display:none;color: black;">
+                            <td class="search_dropdown" style="color: black;">
                               <span>Tax Type </span>
                               <select id="tax_Choice" name='taxType' class="taxType form-control" >
                                  <option value="">Select Your Tax Type</option>
@@ -219,7 +219,7 @@
                                  <option value="<?php echo $value['tax']; ?>"><?php echo $value['tax']; ?></option>
                                  <?php } ?>
                               </select>
-                            </td> 
+                            </td>
 
                            <td class="search_dropdown" style="color: black; position: relative; top: 4px;">
                               <div id="datepicker-container">
@@ -439,9 +439,7 @@ removeDuplicates();
 });
 
 
-
-$(document).ready(function(){
-
+$(document).ready(function () {
     $('#fetch_tax').submit(function (event) {
         event.preventDefault();
         var formData = $(this).serialize();
@@ -452,7 +450,6 @@ $(document).ready(function(){
             url: "<?php echo base_url('Chrm/state_tax_search_summary'); ?>",
             data: formData,
             success: function (response) {
-                // $('#printableArea').show();
                 console.log(response);
                 populateTable(response);
             },
@@ -462,89 +459,72 @@ $(document).ready(function(){
         });
     });
 });
+
 function populateTable(response) {
     var ProfarmaInvList = $("#ProfarmaInvList");
-    // Clear existing table data
-    ProfarmaInvList.find("thead").empty();
-    ProfarmaInvList.find("tbody").empty();
-    ProfarmaInvList.find("tfoot").empty();
+    ProfarmaInvList.find("thead, tbody, tfoot").empty();  // Clear table
+        var hasEmployerContributions = Object.keys(response.employer_contribution).length > 0;
+    var hasEmployeeContributions = Object.keys(response.employee_contribution).length > 0;
 
-    // Create a map to store all tax types and their corresponding tax types
+    if (!hasEmployerContributions && !hasEmployeeContributions) {
+        ProfarmaInvList.find("tbody").append("<tr><td colspan='100%' style='text-align:center;'>No data found</td></tr>");
+        return;  // Stop execution here as there's no data
+    }
     var allTaxTypes = {};
     var taxTypeCounts = {};
 
-    // Iterate over employer contributions
+    // Collect unique tax codes from both employer and employee contributions
     Object.keys(response.employer_contribution).forEach(function (taxType) {
         response.employer_contribution[taxType].forEach(function (item) {
-            allTaxTypes[item.tax] = item.taxType || ''; // Store tax type
-            taxTypeCounts[item.tax] = (taxTypeCounts[item.tax] || 0) + 1; // Count occurrences
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+            allTaxTypes[taxKey] = item.taxType || '';  // Store tax type
+            taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;  // Count occurrences
         });
     });
 
-    // Iterate over employee contributions
     Object.keys(response.employee_contribution).forEach(function (taxType) {
         response.employee_contribution[taxType].forEach(function (item) {
-            allTaxTypes[item.tax] = item.taxType || ''; // Store tax type
-            taxTypeCounts[item.tax] = (taxTypeCounts[item.tax] || 0) + 1; // Count occurrences
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+            allTaxTypes[taxKey] = item.taxType || '';
+            taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
         });
     });
 
     var taxTypeMap = {};
-    Object.keys(allTaxTypes).forEach(function (tax) {
-        var taxType = allTaxTypes[tax];
+    Object.keys(allTaxTypes).forEach(function (taxKey) {
+        var taxType = allTaxTypes[taxKey];
         if (!taxTypeMap[taxType]) {
             taxTypeMap[taxType] = [];
         }
-        taxTypeMap[taxType].push(tax); // Store tax
+        taxTypeMap[taxType].push(taxKey);
     });
-
-    // Populate headers dynamically
+  if (Object.keys(taxTypeMap).length > 0) {
+    // Create table headers dynamically
     var taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th>";
 
-    // Iterate over each tax type and its corresponding taxes
     Object.keys(taxTypeMap).forEach(function (taxType) {
         var taxes = taxTypeMap[taxType];
-        switch (taxType) {
-            case "living_state_tax":
-                taxType = "LIVING STATE TAX";
-                break;
-            case "state_tax":
-                taxType = "WORKING STATE TAX";
-                break;
-        }
-        taxHeaders += "<th colspan='" + (2 * taxes.length) + "' style='text-align:center'>" + taxType + "</th>";
+        var displayTaxType = (taxType === "living_state_tax") ? "LIVING STATE TAX" : "WORKING STATE TAX";
+        taxHeaders += "<th colspan='" + (2 * taxes.length) + "' style='text-align:center'>" + displayTaxType + "</th>";
     });
 
     taxHeaders += "</tr><tr class='btnclr'>";
 
-    // Iterate over tax types and their corresponding taxes to create the table headers
+    // Tax names and codes
     Object.keys(taxTypeMap).forEach(function (taxType) {
-        var taxes = taxTypeMap[taxType]; // Get the taxes for this tax type
-        taxes.forEach(function (tax) {
-             var employerItem = response.employer_contribution[taxType].find(function (item) {
-            return item.tax === tax;
-        });
-        var employeeItem = response.employee_contribution[taxType].find(function (item) {
-            return item.tax === tax;
-        });
-         var code = '';
-        if (employerItem && employerItem.code) {
-            code = employerItem.code;
-        } else if (employeeItem && employeeItem.code) {
-            code = employeeItem.code;
-        }
-            // Append tax name with colspan of 2
-            taxHeaders += "<th colspan='2' style='text-align:center'>" + tax + "-" + code + "</th>";
+        var taxes = taxTypeMap[taxType];
+        taxes.forEach(function (taxKey) {
+            var taxName = taxKey.split('-')[0];
+            var code = taxKey.split('-')[1];
+            taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + code + "</th>";
         });
     });
 
     taxHeaders += "</tr><tr class='btnclr'><th></th>";
 
-    // Add "Employee Contribution" and "Employer Contribution" headers for each tax
     Object.keys(taxTypeMap).forEach(function (taxType) {
-        var taxes = taxTypeMap[taxType]; // Get the taxes for this tax type
+        var taxes = taxTypeMap[taxType];
         taxes.forEach(function () {
-            // Append "Employee Contribution" and "Employer Contribution" headers
             taxHeaders += "<th style='text-align:center'>Employee Contribution</th><th style='text-align:center'>Employer Contribution</th>";
         });
     });
@@ -552,53 +532,47 @@ function populateTable(response) {
     taxHeaders += "</tr>";
     ProfarmaInvList.find("thead").append(taxHeaders);
 
-    // Create a map to consolidate contributions for each employee
+    // Consolidate contributions by employee and tax
     var consolidatedContributions = {};
     Object.keys(response.employer_contribution).forEach(function (taxType) {
         response.employer_contribution[taxType].forEach(function (item) {
             var employeeName = item.employee_name;
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             if (!consolidatedContributions[employeeName]) {
                 consolidatedContributions[employeeName] = {};
             }
-            if (!consolidatedContributions[employeeName][item.tax]) {
-                consolidatedContributions[employeeName][item.tax] = {
-                    employee: "0.00",
-                    employer: "0.000" // Set employer contribution to 0 when not found
-                };
+            if (!consolidatedContributions[employeeName][taxKey]) {
+                consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
             }
-            consolidatedContributions[employeeName][item.tax].employer = parseFloat(item.total_amount).toFixed(3) || "0.000";
+            consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.000";
         });
     });
 
     Object.keys(response.employee_contribution).forEach(function (taxType) {
         response.employee_contribution[taxType].forEach(function (item) {
             var employeeName = item.employee_name;
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             if (!consolidatedContributions[employeeName]) {
                 consolidatedContributions[employeeName] = {};
             }
-            if (!consolidatedContributions[employeeName][item.tax]) {
-                consolidatedContributions[employeeName][item.tax] = {
-                    employee: "0.000", // Set employee contribution to 0 when not found
-                    employer: "0.000"
-                };
+            if (!consolidatedContributions[employeeName][taxKey]) {
+                consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
             }
-            consolidatedContributions[employeeName][item.tax].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
+            consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
         });
     });
 
-    // Populate data rows
+    // Populate rows for each employee
     var tbody = ProfarmaInvList.find("tbody");
     Object.keys(consolidatedContributions).forEach(function (employeeName) {
         var contributions = consolidatedContributions[employeeName];
         var row = $("<tr>");
         row.append("<td>" + employeeName + "</td>");
 
-        // Iterate over tax types and their corresponding taxes to populate the row
         Object.keys(taxTypeMap).forEach(function (taxType) {
-            var taxes = taxTypeMap[taxType]; // Get the taxes for this tax type
-            taxes.forEach(function (tax) {
-                var taxData = contributions[tax] || { employee: "0.000", employer: "0.000" };
-                // Append employee and employer contributions for the current tax
+            var taxes = taxTypeMap[taxType];
+            taxes.forEach(function (taxKey) {
+                var taxData = contributions[taxKey] || { employee: "0.000", employer: "0.000" };
                 row.append("<td>$" + taxData.employee + "</td>");
                 row.append("<td>$" + taxData.employer + "</td>");
             });
@@ -607,34 +581,41 @@ function populateTable(response) {
         tbody.append(row);
     });
 
+    // Populate footer with total contributions
     var tfoot = ProfarmaInvList.find("tfoot");
-    var footerRow = $("<tr class='btnclr'>");
-    footerRow.append("<td>Total</td>");
-
-    // Iterate over tax types
+    var footerRow = $("<tr class='btnclr'>").append("<td>Total</td>");
+    
     Object.keys(taxTypeMap).forEach(function (taxType) {
-        var taxes = taxTypeMap[taxType]; // Get the taxes for this tax type
-        taxes.forEach(function (tax) {
+        var taxes = taxTypeMap[taxType];
+        taxes.forEach(function (taxKey) {
             var totalEmployeeContribution = 0;
             var totalEmployerContribution = 0;
-            // Iterate over contributions for this tax
             Object.keys(consolidatedContributions).forEach(function (employeeName) {
-                var contribution = consolidatedContributions[employeeName][tax];
+                var contribution = consolidatedContributions[employeeName][taxKey];
                 if (contribution) {
                     totalEmployeeContribution += parseFloat(contribution.employee);
                     totalEmployerContribution += parseFloat(contribution.employer);
                 }
             });
-            // Append sum of contributions to footer row
             footerRow.append("<td>$" + totalEmployeeContribution.toFixed(3) + "</td>");
             footerRow.append("<td>$" + totalEmployerContribution.toFixed(3) + "</td>");
         });
     });
+  }else{
+    var columnCount = ProfarmaInvList.find("thead th").length;
 
+// Append "No data found" message
+ProfarmaInvList.find("tbody").append(
+    "<tr style='border:none;'>" +
+    "<td colspan='" + columnCount + "' style='width:2%;padding:20px;text-align:center;'>" +
+    "<p style='text-align:center; margin:0; font-weight:bold;'>No data found</p>" +
+    "</td>" +
+    "</tr>"
+);
+
+  }
     tfoot.append(footerRow);
 }
-
-
 
 
 // document.getElementById("btn").addEventListener("click", () => {

@@ -46,34 +46,32 @@ public function formnj927()
     $this->session->set_userdata(array('message' => display('successfully_delete')));
    redirect("Chrm/manage_employee");
     }
-public function state_summary(){
-    $CI = &get_instance();
-    $CI->load->model('Web_settings');
-    $this->load->model('Hrm_model');
-    $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
-    $data['setting_detail']            = $setting_detail;
-    $tax_name = urldecode($this->input->post('url'));
-    $emp_name = $this->input->post('employee_name');
-     $taxType = $this->input->post('taxType');
-    $date = $this->input->post('daterangepicker-field');
-    $data['state_tax_list'] = $CI->Hrm_model->stateTaxlist();
-    $data['state_summary_employee'] = $this->Hrm_model->state_summary_employee();
-    $data['state_list'] = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Status', 2)->group_by('id')->get()->result_array();
-    $data['state_summary_employer'] = $this->Hrm_model->state_summary_employer();
-    $data['emp_name']=$this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
-    // print_r($data['emp_name']);
-    $employee_tax_data = [];
-    foreach ($state_summary_employee as $employee_tax) {
-        $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
+ public function state_summary() {
+        $CI = &get_instance();
+        $CI->load->model('Web_settings');
+        $this->load->model('Hrm_model');
+        $setting_detail                 = $CI->Web_settings->retrieve_setting_editdata();
+        $data['setting_detail']         = $setting_detail;
+        $tax_name                       = urldecode($this->input->post('url'));
+        $emp_name                       = $this->input->post('employee_name');
+        $taxType                        = $this->input->post('taxType');
+        $date                           = $this->input->post('daterangepicker-field');
+        $data['state_tax_list']         = $CI->Hrm_model->stateTaxlist();
+        $data['state_summary_employee'] = $this->Hrm_model->state_summary_employee();
+        $data['state_list']             = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Status', 0)->where('Type', 'State')->group_by('id')->get()->result_array();
+        $data['state_summary_employer'] = $this->Hrm_model->state_summary_employer();
+        $data['emp_name']               = $this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
+        $employee_tax_data              = [];
+        foreach ($state_summary_employee as $employee_tax) {
+            $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
+        }
+        foreach ($state_summary_employer as $employer_tax) {
+            $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
+        }
+        $data['employee_tax_data'] = $employee_tax_data;
+        $content                   = $this->parser->parse('hr/reports/state_summary', $data, true);
+        $this->template->full_admin_html_view($content);
     }
-    foreach ($state_summary_employer as $employer_tax) {
-        $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
-    }
-    $data['employee_tax_data']=$employee_tax_data;
-  // print_r($data['employee_tax_data']);
-    $content = $this->parser->parse('hr/reports/state_summary', $data, true);
-    $this->template->full_admin_html_view($content);
-}
 public function state_tax_search_summary() {
     $CI = get_instance();
     $CI->load->model('Web_settings');
