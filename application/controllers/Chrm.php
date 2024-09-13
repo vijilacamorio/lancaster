@@ -1940,13 +1940,11 @@ if(isset($split[2])) {
                   'weekly'          => $weekly_tax,
                   'biweekly'          => $biweekly_tax,
                   'created_by'     => $this->session->userdata('user_id'),
-              );
-          //  print_r($data1 );
+                  'unemployement_total'  => $tax_amt_final,
+                );
             $this->db->insert('tax_history_employer',$data1);
-        //  echo $this->db->last_query(); 
-            // }
           }
-          // die();
+ 
             $sql = "DELETE t1
                 FROM tax_history t1
                 INNER JOIN tax_history t2 ON t1.id > t2.id
@@ -2227,7 +2225,6 @@ $data8= array(
         'created_by'     => $this->session->userdata('user_id'),
         'weekly'          => $weekly_tax,
         'biweekly'          => $biweekly_tax,
-       'unemployement_total'  => $tax_amt_final,
 
       );
     $this->db->insert('tax_history_employer',$data8);

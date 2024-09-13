@@ -3829,7 +3829,7 @@ public function get_taxname_living_monthly($lst_name){
         $this->db->select('SUM(unemployement_total) as unempltotal');
         $this->db->from('tax_history_employer');
         $this->db->where('employee_id', $id); 
-        $this->db->where('tax', 'Unemployment'); 
+        // $this->db->where('tax', 'Unemployment'); 
         $this->db->where('created_by', $user_id); 
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
