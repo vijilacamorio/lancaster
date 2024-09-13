@@ -5466,15 +5466,9 @@ $query = '';
 
 
 
- public function newsale($date=null) {
+ public function newsale($date=null) { //need to remove this function
         if($date) {
-            // echo $date."<br/>";
-// $split = array_map(
-//  function($value) {
-//      return implode(' ', $value);
-//  },
-//  array_chunk(explode('to', $date), 3)
-// );
+ 
 
 $split=explode(' to ',$date);
  //print_r($split ); die();
@@ -5597,27 +5591,59 @@ $query = '';
 //  echo json_encode($output);
 
  }
- 
- 
- 
- 
- 
- 
+ /* for invoice view page -Vijila on 12/09/2024*/
+ public function getSalesCount($searchValue) {
+    $searchQuery = "";
+
+    if ($searchValue != '') {
+        $searchQuery = "(
+            a.invoice_id LIKE '%" . $searchValue . "%' OR
+            a.date LIKE '%" . $searchValue . "%' OR
+            b.customer_name LIKE '%" . $searchValue . "%' OR
+            a.total_amount LIKE '%" . $searchValue . "%'
+        )";  
+    }
+
+    $this->db->select('count(*) as total_count');
+    $this->db->from('invoice a');
+    $this->db->join('customer_information b', 'b.customer_id = a.customer_id','left');
+    $this->db->where('a.sales_by',$this->session->userdata('user_id'));
+    $this->db->where('a.is_deleted',0);
+    if ($searchValue != '') {
+        $this->db->where($searchQuery);
+    }
+    $records = $this->db->get()->result_array();
+    //echo $this->db->last_query(); exit;
+    return $records[0]['total_count'];
+}
+public function getSalesdata($limit, $start, $orderField, $orderDirection, $searchValue) {
+
+    $searchQuery = "";
+        if($searchValue != ''){
+            $searchQuery = "(
+                a.invoice_id LIKE '%" . $searchValue . "%' OR
+                a.date LIKE '%" . $searchValue . "%' OR
+                b.customer_name LIKE '%" . $searchValue . "%' OR
+                a.total_amount LIKE '%" . $searchValue . "%'
+            )";         
+        }
+        $this->db->select('a.*,a.id,a.invoice_id, a.date,a.sales_by,a.commercial_invoice_number,a.total_amount,b.customer_name');
+        $this->db->from('invoice a');
+        $this->db->join('customer_information b', 'b.customer_id = a.customer_id','left');
+        $this->db->where('a.sales_by',$this->session->userdata('user_id'));
+        $this->db->where('a.is_deleted',0);
+
+        if($searchValue != ''){
+            $this->db->where($searchQuery);
+        }
+        $this->db->order_by($orderField, $orderDirection);
+        $this->db->limit($limit, $start);
+        $records = $this->db->get()->result();
+        return $records;
+}
+/* end of invoice view page */
  public function ocean_export($date=null) {
-//     if($date) {
-// $split = array_map(
-// function($value) {
-//  return implode(' ', $value);
-// },
-// array_chunk(explode('-', $date), 3)
-// );
 
-
-//  $start = str_replace(' ', '-', $split[0]);
-//  $end = str_replace(' ', '-', $split[1]);
-//  $start = rtrim($start, "-");
-//  $end= preg_replace('/' . '-' . '/', '', $end, 1);
-// }
 if($date) {
 $split=explode(' to ',$date);
 $start =  $split[0];

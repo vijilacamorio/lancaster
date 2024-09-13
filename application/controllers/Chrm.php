@@ -9,7 +9,7 @@ class Chrm extends CI_Controller {
         $this->db->query('SET SESSION sql_mode = ""');
         $this->load->library('auth');
         $this->load->library('session');
-         $this->load->model('Web_settings');
+        $this->load->model('Web_settings');
         $this->load->model('Hrm_model');
         $this->auth->check_admin_auth();
     }
@@ -366,26 +366,68 @@ public function other_tax_search() {
     $data['merged_reports'] = $merged_array;
 echo json_encode($data['merged_reports']);
 }
-public function federal_tax_report(){
-   $CI = & get_instance();
-        $CI->load->model('Web_settings');
- $this->load->model('Hrm_model');
-$setting_detail = $CI->Web_settings->retrieve_setting_editdata();
- $emp_name=$this->input->post('employee_name');
-        $data['setting_detail']            = $setting_detail;
+
+
+
+
+
+
+public function newfederaltax()
+{
+    $setting_detail = $this->Web_settings->retrieve_setting_editdata();
+    $emp_name=$this->input->post('employee_name');
+    $data['setting_detail'] = $setting_detail;
     $date=$this->input->post('daterangepicker-field');
-$split = explode(" - ", $date);
-$data['start'] = isset($split[0]) ? $split[0] : null;
-$data['end'] = isset($split[1]) ? $split[1] : null;
-      $data['fed_tax'] = $this->Hrm_model->employe($emp_name,$date);
-     $data['fed_tax_emplr'] = $this->Hrm_model->employr($emp_name,$date);
-     // print_r( $data['fed_tax']);
-    //  echo "<br/>";;echo "<br/>";
-    // print_r($data['fed_tax_emplr']);//die();
-     $data['employee_data'] =$this->Hrm_model->employee_data_get();
-  $content                  = $this->parser->parse('hr/reports/fed_income_tax_report', $data, true);
-         $this->template->full_admin_html_view($content);
+    $split = explode(" - ", $date);
+    $data['start'] = isset($split[0]) ? $split[0] : null;
+    $data['end'] = isset($split[1]) ? $split[1] : null;
+    $data['fed_tax'] = $this->Hrm_model->employe($emp_name,$date);
+    $data['fed_tax_emplr'] = $this->Hrm_model->employr($emp_name,$date);
+    $data['employee_data'] =$this->Hrm_model->employee_data_get();
+    $content = $this->load->view('hr/reports/federalincome_report', $data, true);
+    $this->template->full_admin_html_view($content);
 }
+
+// Fetch data in Income Tax Index - Madhu
+public function federaIndexData()
+{
+    $limit          = $this->input->post("length");
+    $start          = $this->input->post("start");
+    $search         = $this->input->post("search")["value"];
+    $orderField     = $this->input->post("columns")[$this->input->post("order")[0]["column"]]["data"];
+    $orderDirection = $this->input->post("order")[0]["dir"];
+    $date           = $this->input->post("date");
+    $emp_name       = $this->input->post('employee_name');
+    $items          = $this->Hrm_model->getPaginatedfederalincometax($limit,$start,$orderField,$orderDirection,$search,$date,$emp_name);
+    $totalItems     = $this->Hrm_model->getTotalfederalincometax($search,$date,$emp_name);
+    $fed_tax_emplr  = $this->Hrm_model->employr($emp_name,$date);
+    $data           = [];
+    $i              = $start + 1;
+    $edit           = "";
+    $delete         = "";
+    foreach ($items as $item) {
+        $s_stax_emplr = isset($fed_tax_emplr[$index]['f_ftax']) ? $fed_tax_emplr[$index]['f_ftax'] : 0;
+        $row = [
+            'table_id'      => $i,
+            "first_name"     => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
+            "employee_tax"      => $item["employee_tax"],
+            "timesheet_id"      => $item["timesheet_id"],
+            "month"             => $item["month"],
+            "f_ftax"            => number_format($item['f_ftax'], 2),
+        ];
+        $data[] = $row;
+        $i++;
+    }
+    $response = [
+        "draw"            => $this->input->post("draw"),
+        "recordsTotal"    => $totalItems,
+        "recordsFiltered" => $totalItems,
+        "data"            => $data,
+    ];
+    echo json_encode($response);
+}
+
+
 public function federal_tax_report_search(){
  $CI = & get_instance();
         $CI->load->model('Web_settings');

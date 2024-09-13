@@ -3749,8 +3749,6 @@ if ($query->num_rows() > 0) {
 
   
 
-   
-
   public function get_taxname_living_hourly($lst_name){
     $user_id = $this->session->userdata('user_id');
     $this->db->select('tax');

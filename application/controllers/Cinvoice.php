@@ -17,6 +17,7 @@ class Cinvoice extends CI_Controller {
 
         parent::__construct();
         $this->load->model('Web_settings');
+        $this->load->model('Invoices');
             $this->load->library('session');
         $this->db->query('SET SESSION sql_mode = ""');
 
@@ -2103,249 +2104,6 @@ public function trucking_file_upload(){
 }
 
 
-    
-    
-    
-
-/*
-       public function invoice_pdf_generate($invoice_id = null) {
-
-        $id = $invoice_id; 
-
-        $this->load->model('Invoices');
-
-        $this->load->model('Web_settings');
-
-        $this->load->library('occational');
-
-        $this->load->library('numbertowords');
-
-        $invoice_detail = $this->Invoices->retrieve_invoice_html_data($invoice_id);
-
-        $taxfield = $this->db->select('*')
-
-                ->from('tax_settings')
-
-                ->where('is_show',1)
-
-                ->get()
-
-                ->result_array();
-
-        $txregname ='';
-
-        foreach($taxfield as $txrgname){
-
-        $regname = $txrgname['tax_name'].' Reg No  - '.$txrgname['reg_no'].', ';
-
-        $txregname .= $regname;
-
-        }       
-
-        $subTotal_quantity = 0;
-
-        $subTotal_cartoon = 0;
-
-        $subTotal_discount = 0;
-
-        $subTotal_ammount = 0;
-
-        $descript = 0;
-
-        $isserial = 0;
-
-        $isunit = 0;
-
-        $is_discount = 0;
-
-        if (!empty($invoice_detail)) {
-
-            foreach ($invoice_detail as $k => $v) {
-
-                $invoice_detail[$k]['final_date'] = $this->occational->dateConvert($invoice_detail[$k]['date']);
-
-            $subTotal_quantity = $subTotal_quantity + $invoice_detail[$k]['quantity'];
-
-            $subTotal_ammount = $subTotal_ammount + $invoice_detail[$k]['total_price'];
-
-            }
-
-            $i = 0;
-
-            foreach ($invoice_detail as $k => $v) {
-
-            $i++;
-
-            $invoice_detail[$k]['sl'] = $i;
-
-            if(!empty($invoice_detail[$k]['description'])){
-
-                $descript = $descript+1;
-
-            }
-
-             if(!empty($invoice_detail[$k]['serial_no'])){
-
-                $isserial = $isserial+1; 
-
-            }
-
-             if(!empty($invoice_detail[$k]['discount_per'])){
-
-                $is_discount = $is_discount+1;   
-
-            }
-
-
-
-            if(!empty($invoice_detail[$k]['unit'])){
-
-                    $isunit = $isunit+1;
-
-                    
-
-                }
-
-   
-
-            }
-
-        }
-
-
-
-        $currency_details = $this->Web_settings->retrieve_setting_editdata();
-
-        $company_info     = $this->Invoices->retrieve_company();
-
-        $totalbal         = $invoice_detail[0]['total_amount']+$invoice_detail[0]['prevous_due'];
-
-        $amount_inword    = $this->numbertowords->convert_number($totalbal);
-
-        $user_id          = $invoice_detail[0]['sales_by'];
-
-        $users            = $this->Invoices->user_invoice_data($user_id);
-
-         $name            = $invoice_detail[0]['customer_name'];
-
-        $email            = $invoice_detail[0]['customer_email'];
-
-        $data = array(
-
-        'title'             => display('invoice_details'),
-
-        'invoice_id'        => $invoice_detail[0]['invoice_id'],
-
-        'customer_info'     => $invoice_detail,
-
-        'invoice_no'        => $invoice_detail[0]['invoice'],
-
-        'customer_name'     => $invoice_detail[0]['customer_name'],
-
-        'customer_address'  => $invoice_detail[0]['customer_address'],
-
-        'customer_mobile'   => $invoice_detail[0]['customer_mobile'],
-
-        'customer_email'    => $invoice_detail[0]['customer_email'],
-
-        'final_date'        => $invoice_detail[0]['final_date'],
-
-        'invoice_details'   => $invoice_detail[0]['invoice_details'],
-
-        'total_amount'      => number_format($invoice_detail[0]['total_amount']+$invoice_detail[0]['prevous_due'], 2, '.', ','),
-
-        'subTotal_quantity' => $subTotal_quantity,
-
-        'total_discount'    => number_format($invoice_detail[0]['total_discount'], 2, '.', ','),
-
-        'total_tax'         => number_format($invoice_detail[0]['total_tax'], 2, '.', ','),
-
-        'subTotal_ammount'  => number_format($subTotal_ammount, 2, '.', ','),
-
-        'paid_amount'       => number_format($invoice_detail[0]['paid_amount'], 2, '.', ','),
-
-        'due_amount'        => number_format($invoice_detail[0]['due_amount'], 2, '.', ','),
-
-        'previous'          => number_format($invoice_detail[0]['prevous_due'], 2, '.', ','),
-
-        'shipping_cost'     => number_format($invoice_detail[0]['shipping_cost'], 2, '.', ','),
-
-        'invoice_all_data'  => $invoice_detail,
-
-        'company_info'      => $company_info,
-
-        'currency'          => $currency_details[0]['currency'],
-
-        'position'          => $currency_details[0]['currency_position'],
-
-        'discount_type'     => $currency_details[0]['discount_type'],
-
-        'currency_details'  => $currency_details,
-
-        'am_inword'         => $amount_inword,
-
-        'is_discount'       => $is_discount,
-
-        'users_name'        => $users->first_name.' '.$users->last_name,
-
-        'tax_regno'         => $txregname,
-
-        'is_desc'           => $descript,
-
-        'is_serial'         => $isserial,
-
-        'is_unit'           => $isunit,
-
-        );
-
-
-
-        $this->load->library('pdfgenerator');
-
-        $html = $this->load->view('invoice/invoice_download', $data, true);
-
-        $dompdf = new DOMPDF();
-
-        $dompdf->load_html($html);
-
-        $dompdf->render();
-
-        $output = $dompdf->output();
-
-        file_put_contents('assets/data/pdf/invoice/' . $id . '.pdf', $output);
-
-        $file_path = getcwd() . '/assets/data/pdf/invoice/' . $id . '.pdf';
-
-        $send_email = '';
-
-        if (!empty($email)) {
-
-            $send_email = $this->setmail($email, $file_path, $invoice_detail[0]['invoice'], $name);
-
-            
-
-            if($send_email){
-
-           return 1;
-
-            }else{
-
-               return 0;
-
-               
-
-            }
-
-           
-
-        }
-
-      return 0; 
-
-       
-
-    }
-*/
 public function get_expense_datas(){
  $CI = & get_instance();
 
@@ -2595,42 +2353,18 @@ public function manual_sales_insert(){
 
     public function manageInvoice() {
 
-        $this->session->unset_userdata('invoiceid');
-
-        $this->session->unset_userdata('nation');
-    $date = $this->input->post("daterangepicker-field");
-
-
+        
         $this->auth->check_admin_auth();
 
-        $this->load->library('linvoice');
-
-        $this->load->model('Invoices');
-
-        $setting_detail = $this->Web_settings->retrieve_setting_editdata();
+        $setting_detail     = $this->Web_settings->retrieve_setting_editdata();
  
-        $value = $this->linvoice->invoice_list();
-
-        $sale = $this->Invoices->newsale($date);
-        
-        $email_settings = $this->Invoices->getEmailConfigdata();
-
-        $currency_details = $this->Web_settings->retrieve_setting_editdata();
-        // print_r($currency_details);
-        $data['currency']          = $currency_details[0]['currency'];
+        $data['currency']   = $setting_detail[0]['currency'];
     
 
         $data = array(
-            'invoice'         =>  $value,
-
-            'sale' => $sale,
-            
-            'email_settings' => $email_settings,
-            
           'setting_detail' => $setting_detail
 
         );
-        // print_r($sale);
         $content = $this->load->view('invoice/invoice_list', $data, true);
     
         $this->template->full_admin_html_view($content);
@@ -2638,53 +2372,52 @@ public function manual_sales_insert(){
 
     }
     public function getInvoiceData(){
-		$encodedId      = isset($_GET['id']) ? $_GET['id'] : null;
-        $decodedId      = decodeBase64UrlParameter($encodedId);
         $limit          = $this->input->post('length');
         $start          = $this->input->post('start');
         $search         = $this->input->post('search')['value'];
         $orderField     = $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'] =='sl' ? 'id' : $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'];
         $orderDirection = $this->input->post('order')[0]['dir'];
-        $totalItems     = $this->sales_model->getOceanExportCount($search, $decodedId);
-        $items          = $this->sales_model->getOceanExportsdata($limit, $start, $orderField, $orderDirection, $search, $decodedId);
+        $totalItems     = $this->Invoices->getSalesCount($search);
+        $items          = $this->Invoices->getSalesdata($limit, $start, $orderField, $orderDirection, $search);
+        $setting_detail = $this->Web_settings->retrieve_setting_editdata();
+        $currency       = $setting_detail[0]['currency'];
         $data           = [];
         $sl             = $start + 1;
         $jsaction = "return confirm('Are You Sure ?')";
         foreach ($items as $record) {
             $button = '';
-           //if($this->permission1->method('manage_supplier','update')->access()){
-                $button .='<a href="'.base_url().'sales/oceanExportTrackingEdit/'.$record->id.'?id='.$encodedId.'" class="btnclr btn btn-xs"  data-placement="left" title="'. display('update').'"><i class="fa fa-edit"></i></a> ';
-           // }
-          // if($this->permission1->method('manage_supplier','delete')->access()){
-                 $button .='<a href="#" onclick="deleteOceanExpTrac('.$record->id.','.$decodedId.')" class="btn btnclr btn-xs" onclick="'.$jsaction.'" ><i class="fa fa-trash"></i></a>';
-          // }
+                $button .='<a class="btnclr btn  btn-sm"  href="'.base_url().'Cinvoice/invoice_inserted_data/'.$record->invoice_id.'"><i class="fa fa-download" aria-hidden="true"></i></a> ';
+                foreach(  $this->session->userdata('perm_data') as $test){
+                    $split=explode('-',$test);
+                    if((trim($split[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split[1])=='0010') || $_SESSION['u_type'] ==2){
+                        $button .=' <a class="btnclr btn  btn-sm invoice_edit" href="'.base_url().'Cinvoice/invoice_update_form/'.$record->invoice_id.'"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
+                        break;
+                    }
+                }
+                foreach(  $this->session->userdata('perm_data') as $test){
+                    $split=explode('-',$test);
+                    if((trim($split[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split[1])=='0001') || $_SESSION['u_type'] ==2){
+                        $button .=' <a class="btnclr btn  btn-sm" onclick="return confirm(/'.display('are_you_sure').'/)"   href="'.base_url().'Cinvoice/sale_invoice_delete/'.$record->invoice_id."/".$record->commercial_invoice_number.'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
+                        break;
+                    }
+                }
             $data[] = array( 
-                'sl'               	=> $sl,
-                'booking_no'    	=> html_escape($record->booking_no),
-                'container_no'      => html_escape($record->container_no),
-                'seal_no'           => html_escape($record->seal_no),
-                'ocean_export_tracking_id'    => html_escape($record->ocean_export_tracking_id),
-                'supplier_name'     => html_escape($record->supplier_name),
-                'invoice_date'   	=> html_escape($record->invoice_date),
-                'place_of_delivery' => html_escape($record->place_of_delivery),
-                'notify_party'      => html_escape($record->notify_party),
-                'vessel'          	=> html_escape($record->vessel),
-                'voyage_no'     	=> html_escape($record->voyage_no),
-                'freight_forwarder' => html_escape($record->freight_forwarder),
-                'hbl_no'      		=> html_escape($record->hbl_no),
-                'obl_no'    		=> html_escape($record->obl_no),
-                'ams_no'            => html_escape($record->ams_no),
-                'isf_no'     		=> html_escape($record->isf_no),
-                'mbl_no'            => html_escape($record->mbl_no),
-                'port_of_discharge' => html_escape($record->port_of_discharge),
-                'customs_broker_name' => html_escape($record->customs_broker_name),
-                'etd'     			=> html_escape($record->etd),
-                'consignee'     	=> html_escape($record->consignee),
-                'port_of_loading'   => html_escape($record->port_of_loading),
-                'eta'     			=> html_escape($record->eta),
-                'particular'     	=> html_escape($record->particular),
-                'etd'     			=> html_escape($record->etd),
-                'button'           => $button
+                'sl'               	           => $sl,
+                'commercial_invoice_number'    => html_escape($record->commercial_invoice_number),
+                'container_no'                 => html_escape($record->container_no),
+                'customer_id'                  => html_escape($record->customer_id),
+                'date'                         => ($record->date !="" ? html_escape(date('m-Y-d', strtotime($record->date))) : ''),
+                'gtotal'                       => $currency.html_escape($record->gtotal),
+                'total_amount'                 => $currency.$record->total_amount,
+                'payment_type'                 => html_escape($record->payment_type),
+                'invoice_id'                   => html_escape($record->invoice_id),
+                'billing_address'          	   => html_escape($record->billing_address),
+                'total_tax'     	           => html_escape($record->total_tax),
+                'paid_amount'                  => html_escape($record->paid_amount),
+                'due_amount'      		       => html_escape($record->due_amount),
+                'remark'    		           => html_escape($record->remark),
+                'ac_details'                   => html_escape($record->ac_details),
+                'button'                       => $button
             );
                 $sl++;
         }
