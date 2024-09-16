@@ -1045,11 +1045,15 @@ else {
               $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') < STR_TO_DATE('$d1', '%m/%d/%Y')", NULL, FALSE);
               $this->db->where('templ_name', $data['timesheet_data'][0]['templ_name']);
               $query = $this->db->get(); 
+           
               $data['emp_salary_amt'] = $query->result_array(); 
               if (!empty($data['emp_salary_amt'])) {
                   $total = $data['emp_salary_amt'][0]['extra_thisrate'];
                   $ytd = $data['emp_salary_amt'][0]['totalamout'];
-              }          
+              }  
+              $ytd_salary_amt = $this->Hrm_model->get_employee_sal_ytd($data['timesheet_data'][0]['templ_name']);
+              $ytd_sal = $ytd_salary_amt[0]['overalltotal'];
+              
               $total_unemployment = $this->Hrm_model->total_unemployment($data['timesheet_data'][0]['templ_name']);        
               if($total_unemployment[0]['unempltotal'] < $details ){
                 if ($all_ytd <= $details) {
@@ -1058,7 +1062,7 @@ else {
                 $tax_amt_final = $final;
               }  
               elseif ($all_ytd > $details) {
-                  $bal = $details  - $ytd ;
+                  $bal = $details  - $ytd_sal ;
                   $uu = ($unemployment_employer / 100) * $bal;
                   $tax_amt_final = $bal;  
                   $uu = round($uu, 3);
@@ -1069,7 +1073,8 @@ else {
             }else{
               $uu = 0.00;
 
-            }   
+            } 
+
             $ar = $this->db->select('u_tax')->from('tax_history')->where('employee_id',$this->input->post('templ_name'))->get()->row()->u_tax;
             $u_tax=$ar+$u;
             }
@@ -1947,7 +1952,6 @@ if(isset($split[2])) {
                 );
             $this->db->insert('tax_history_employer',$data1);
           }
- 
             $sql = "DELETE t1
                 FROM tax_history t1
                 INNER JOIN tax_history t2 ON t1.id > t2.id
@@ -5101,17 +5105,18 @@ $data2 = array(
       $data['title']            = display('payroll_manage');
       $datainfo = $this->Hrm_model->get_data_payslip();
       $emplinfo = $this->Hrm_model->empl_data_info();
-   //  print_r($emplinfo);
       $data=array(
           'dataforpayslip' => $datainfo,
           'employee_info' => $emplinfo,
           'setting_detail' => $setting_detail
      );
-  // print_r($emplinfo); 
-  // .;
+
       $content                  = $this->parser->parse('hr/payroll_manage_list', $data, true);
       $this->template->full_admin_html_view($content);
       }
+
+
+
 public function add_state(){
   $CI = & get_instance();
 $state_name = $this->input->post('state_name');
@@ -5124,6 +5129,10 @@ $state_name = $this->input->post('state_name');
       $this->session->set_userdata(array('message' => 'New State Added Successfully'));
      redirect("Chrm/payroll_setting");
 }
+
+
+
+
 public function add_state_tax(){
     $CI = & get_instance();
     $tx = $this->input->post('state_tax_name');
@@ -5190,17 +5199,19 @@ $this->template->full_admin_html_view($content);
     $content = $this->parser->parse('hr/payroll_setting', $data, true);
     $this->template->full_admin_html_view($content);
     }
+
+
     public function payroll_setting() {
       $CI = & get_instance();
       $CI->load->model('Web_settings');
       $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
-    $data['timesheet_data_emp'] =  $CI->Hrm_model->timesheet_data_emp();
-    $data['setting_detail'] = $setting_detail;
-    $data['states_list'] = $this->db->select("state, tax")
-    ->from('state_and_tax')
-    ->where('created_by', $this->session->userdata('user_id'))
-    ->where('Type', 'State')
-    ->get()
+      $data['timesheet_data_emp'] =  $CI->Hrm_model->timesheet_data_emp();
+      $data['setting_detail'] = $setting_detail;
+      $data['states_list'] = $this->db->select("state, tax")
+      ->from('state_and_tax')
+      ->where('created_by', $this->session->userdata('user_id'))
+      ->where('Type', 'State')
+      ->get()
     ->result_array();
      $data['city_list'] = $this->db->select("state, tax")
      ->from('state_and_tax')
@@ -5222,6 +5233,12 @@ $this->template->full_admin_html_view($content);
   $content = $this->parser->parse('hr/federal_taxes', $data, true);
   $this->template->full_admin_html_view($content);
   }
+
+
+
+
+
+
     public function formfl099nec($selectedValue = null)
 {
      $CI = & get_instance();
