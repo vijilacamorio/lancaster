@@ -2374,7 +2374,7 @@ public function manual_sales_insert(){
     public function getInvoiceData(){
         $limit          = $this->input->post('length');
         $start          = $this->input->post('start');
-        $search         = $this->input->post('search')['value'];
+        $search         = trim($this->input->post('search')['value']);
         $orderField     = $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'] =='sl' ? 'id' : $this->input->post('columns')[$this->input->post('order')[0]['column']]['data'];
         $orderDirection = $this->input->post('order')[0]['dir'];
         $totalItems     = $this->Invoices->getSalesCount($search);
@@ -2387,26 +2387,28 @@ public function manual_sales_insert(){
         foreach ($items as $record) {
             $button = '';
                 $button .='<a class="btnclr btn  btn-sm"  href="'.base_url().'Cinvoice/invoice_inserted_data/'.$record->invoice_id.'"><i class="fa fa-download" aria-hidden="true"></i></a> ';
-                foreach(  $this->session->userdata('perm_data') as $test){
+                $split =array();
+                foreach( $this->session->userdata('perm_data') as $test){
                     $split=explode('-',$test);
-                    if((trim($split[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split[1])=='0010') || $_SESSION['u_type'] ==2){
-                        $button .=' <a class="btnclr btn  btn-sm invoice_edit" href="'.base_url().'Cinvoice/invoice_update_form/'.$record->invoice_id.'"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
-                        break;
-                    }
                 }
-                foreach(  $this->session->userdata('perm_data') as $test){
-                    $split=explode('-',$test);
-                    if((trim($split[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split[1])=='0001') || $_SESSION['u_type'] ==2){
-                        $button .=' <a class="btnclr btn  btn-sm" onclick="return confirm(/'.display('are_you_sure').'/)"   href="'.base_url().'Cinvoice/sale_invoice_delete/'.$record->invoice_id."/".$record->commercial_invoice_number.'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
-                        break;
-                    }
+                if(($_SESSION['u_type'] ==2) || (trim($split[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split[1])=='0010')){
+                    $button .=' <a class="btnclr btn  btn-sm invoice_edit" href="'.base_url().'Cinvoice/invoice_update_form/'.$record->invoice_id.'"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
+                }
+                $mailval    = $record->invoice_id.',"invoice","invoice_id"';
+                $button = "<a class='btnclr btn  btn-sm getinvoice_id' data-toggle='modal' data-target='#emailmodal' onclick='mail($mailval)'><i class='fa fa-envelope' aria-hidden='true' ></i></a>";
+                $split1 = array();
+                foreach($this->session->userdata('perm_data') as $test){
+                    $split1=explode('-',$test);
+                }
+                if(($_SESSION['u_type'] ==2) || (trim($split1[0])=='sales' && $_SESSION['u_type'] ==3 && trim($split1[1])=='0001')){
+                    $button .=' <a class="btnclr btn  btn-sm" onclick="return confirm(/'.display('are_you_sure').'/)"   href="'.base_url().'Cinvoice/sale_invoice_delete/'.$record->invoice_id."/".$record->commercial_invoice_number.'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
                 }
             $data[] = array( 
                 'sl'               	           => $sl,
                 'commercial_invoice_number'    => html_escape($record->commercial_invoice_number),
                 'container_no'                 => html_escape($record->container_no),
                 'customer_id'                  => html_escape($record->customer_id),
-                'date'                         => ($record->date !="" ? html_escape(date('m-Y-d', strtotime($record->date))) : ''),
+                'date'                         => ($record->date !="" ? html_escape(date('m-d-Y', strtotime($record->date))) : ''),
                 'gtotal'                       => $currency.html_escape($record->gtotal),
                 'total_amount'                 => $currency.$record->total_amount,
                 'payment_type'                 => html_escape($record->payment_type),

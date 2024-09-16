@@ -156,9 +156,9 @@
                                  <th width="6%"><?php echo display('Invoice ID')?></th>
                                  <th width="7%"><?php echo display('Billing Address')?></th>
                                  <th width="6%"><?php echo display('Tax Details')?></th>
-                                 <th width="6%"><?php echo display('Amount Paid')?></th>
-                                 <th width="6%"><?php echo display('Balance Amount')?></th>
-                                 <th width="6%"><?php echo display('Remarks/Conditions')?></th>
+                                 <th width="5%"><?php echo display('Amount Paid')?></th>
+                                 <th width="5%"><?php echo display('Balance Amount')?></th>
+                                 <th width="6%">Remarks / Conditions</th>
                                  <th width="6%"><?php echo display('Account Details')?></th>
                                  <th width="7%"><?php echo display('Action')?></th>
                               </tr>
@@ -174,7 +174,7 @@
 
 
 <script>
-      var supplierDataTable;
+      var invoiceDataTable;
    $(document).ready(function() {
       
          if ($.fn.DataTable.isDataTable('#tblInvoice')) {
@@ -182,7 +182,7 @@
          }
          var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>';
          var csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
-         supplierDataTable = $('#tblInvoice').DataTable({
+         invoiceDataTable = $('#tblInvoice').DataTable({
             "processing": true,
             "serverSide": true,
             "lengthMenu": [
@@ -368,7 +368,7 @@
                if(response.status =='success'){
                      $('.error_display').html(succalert+response.msg+'</div>');
                      window.setTimeout(function(){
-                        supplierDataTable.ajax.reload(null, false);
+                        invoiceDataTable.ajax.reload(null, false);
                         $('.error_display').html('');
                      },2500);
                }else{
