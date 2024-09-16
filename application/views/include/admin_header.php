@@ -15,10 +15,6 @@
     $users = $CI->Users->profile_edit_data();
  
     $state_tax_list = $CI->Hrm_model->state_tax_list();
-//    $state_tax_list_living = $CI->Hrm_model->state_tax_list_living();
- 
-    // $merged_state_tax_list = array_merge($state_tax_list, $state_tax_list_living);
-
    ?>
 <style>
    .navbar-custom-menu>.navbar-nav>li>.dropdown-menu {
@@ -905,8 +901,11 @@
                        <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_tax_report"><?php  echo ('County Tax');?></a></li>       
                             
                                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/other_tax"><?php  echo ('Other Taxes');?></a></li>
+                                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/OverallSummary"><?php  echo ('Overall Summary');?></a></li>
                            </ul>
+               
                         </li>
+                       
          </ul>
       </li>
       <!-- Human Resource New menu end -->
