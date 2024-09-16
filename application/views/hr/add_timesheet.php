@@ -799,7 +799,6 @@ $(document).ready(function() {
     function updateCounter() {
         var sumOfDays = 0; 
         sumOfDays = $('input[type="checkbox"].present:checked').length;
-        alert('802');
         $('#total_net').val(sumOfDays);
     }
     // Use event delegation for dynamically added checkboxes
@@ -828,26 +827,33 @@ $(document).on('select change'  ,'.end','.dailybreak', function () {
     var minutes = totalMinutes % 60;
     var formattedTime = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0');
     $(this).closest('tr').find('.timeSum').val(formattedTime);
-debugger;
-var total_net = 0;
+//var total_net = 0;
+var total_netH = 0;
+var total_netM = 0;
 $('.table').each(function () {
     var tableTotal = 0;
+    var tableHours = 0;
+    var tableMinutes = 0;
     $(this).find('.timeSum').each(function () {
         var precio = $(this).val();
         if (!isNaN(precio) && precio.length !== 0) {
             var [hours, minutes] = precio.split('.').map(parseFloat);
-            tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            //tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            tableHours += hours;
+            tableMinutes += minutes;
         }
     });
-    total_net += tableTotal;
+    total_netH += tableHours;
+    total_netM += tableMinutes;
 });
+/*alert('total_net'+total_netH+'.'+total_netM);
 var hours = Math.floor(total_net);
 var minutes = Math.round((total_net % 1) * 100); 
 if (minutes === 100) {
     hours += 1;
     minutes = 0;
-}
-var timeConvertion = convertToTime(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0'));
+}*/
+var timeConvertion = convertToTime(total_netH ,total_netM);
 $('#total_net').val(timeConvertion).trigger('change');
 });
 $(document).on('select change'  ,'.start','.dailybreak', function () {
@@ -866,27 +872,36 @@ if (isNaN(parseFloat(formattedTime))) {
 }else{
     $(this).closest('tr').find('.timeSum').val(formattedTime);
 }
-debugger;
-var total_net = 0;
+
+//var total_net = 0;
+var total_netH =0;
+var total_netM =0;
 $('.table').each(function () {
     var tableTotal = 0;
+    var tableHours = 0;
+    var tableMinutes = 0;
     $(this).find('.timeSum').each(function () {
         var precio = $(this).val();
         if (!isNaN(precio) && precio.length !== 0) {
             var [hours, minutes] = precio.split('.').map(parseFloat);
-            tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            //tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            tableHours += hours;
+            tableMinutes += minutes;
         }
     });
-    total_net += tableTotal;
+    //total_net += tableTotal;
+    total_netH += tableHours;
+    total_netM += tableMinutes;
 });
+/*alert('total_net:'+total_netH+'.'+total_netM);
 // Convert the total back to hours and minutes format
 var hours = Math.floor(total_net);
 var minutes = Math.round((total_net % 1) * 100); // Multiply by 100 to get the minutes
 if (minutes === 100) {
     hours += 1;
     minutes = 0;
-}
-var timeConvertion = convertToTime(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0'));
+}*/
+var timeConvertion = convertToTime(total_netH,total_netM);
 $('#total_net').val(timeConvertion).trigger('change');
 });
 $(document).on('input','.timeSum', function () {
@@ -931,7 +946,7 @@ $(this).closest('tr').remove();
       });
   });
 //   console.log(total_net.toFixed(3));
-alert('931');
+
 $('#total_net').val(total_net.toFixed(2)).trigger('change');
   var firstDate = $('.date input').first().val(); 
     var lastDate = $('.date input').last().val(); 
@@ -974,15 +989,11 @@ document.getElementById('validate').addEventListener('submit', function(event) {
         }
     });
 });
-function convertToTime(decimalTime) {
-    let hours = Math.floor(decimalTime); 
-    let minutes = Math.round((decimalTime - hours) * 100); 
-    if (minutes >= 60) {
-        hours += Math.floor(minutes / 60);
-        minutes = minutes % 60;
-    }
+function convertToTime(hr,min) {
+    let hours = Math.floor(min / 60);
+    let minutes = min % 60;
     minutes = minutes < 10 ? '0' + minutes : minutes;
-    return `${hours}:${minutes}`;
+    return `${hours+hr}:${minutes}`;
 }
 
 
