@@ -799,6 +799,7 @@ $(document).ready(function() {
     function updateCounter() {
         var sumOfDays = 0; 
         sumOfDays = $('input[type="checkbox"].present:checked').length;
+        alert('802');
         $('#total_net').val(sumOfDays);
     }
     // Use event delegation for dynamically added checkboxes
@@ -846,7 +847,8 @@ if (minutes === 100) {
     hours += 1;
     minutes = 0;
 }
-$('#total_net').val(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0')).trigger('change');
+var timeConvertion = convertToTime(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0'));
+$('#total_net').val(timeConvertion).trigger('change');
 });
 $(document).on('select change'  ,'.start','.dailybreak', function () {
  var $begin = $(this).closest('tr').find('.start').val();
@@ -884,7 +886,8 @@ if (minutes === 100) {
     hours += 1;
     minutes = 0;
 }
-$('#total_net').val(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0')).trigger('change');
+var timeConvertion = convertToTime(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0'));
+$('#total_net').val(timeConvertion).trigger('change');
 });
 $(document).on('input','.timeSum', function () {
     // $(".timeSum").change(function(){
@@ -928,6 +931,7 @@ $(this).closest('tr').remove();
       });
   });
 //   console.log(total_net.toFixed(3));
+alert('931');
 $('#total_net').val(total_net.toFixed(2)).trigger('change');
   var firstDate = $('.date input').first().val(); 
     var lastDate = $('.date input').last().val(); 
@@ -970,4 +974,16 @@ document.getElementById('validate').addEventListener('submit', function(event) {
         }
     });
 });
+function convertToTime(decimalTime) {
+    let hours = Math.floor(decimalTime); 
+    let minutes = Math.round((decimalTime - hours) * 100); 
+    if (minutes >= 60) {
+        hours += Math.floor(minutes / 60);
+        minutes = minutes % 60;
+    }
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minutes}`;
+}
+
+
 </script>
