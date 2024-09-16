@@ -64,16 +64,23 @@ public function state_summary(){
     // print_r($data['emp_name']);
     $employee_tax_data = [];
     foreach ($state_summary_employee as $employee_tax) {
-        $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
-    }
-    foreach ($state_summary_employer as $employer_tax) {
-        $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
-    }
-    $data['employee_tax_data']=$employee_tax_data;
-  // print_r($data['employee_tax_data']);
-    $content = $this->parser->parse('hr/reports/state_summary', $data, true);
-    $this->template->full_admin_html_view($content);
+      $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
+  }
+  foreach ($state_summary_employer as $employer_tax) {
+      $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
+  }
+  $data['employee_tax_data'] = $employee_tax_data;
+  $content                   = $this->parser->parse('hr/reports/state_summary', $data, true);
+  $this->template->full_admin_html_view($content);
 }
+public function OverallSummary(){
+  $data['setting_detail']         = $this->Web_settings->retrieve_setting_editdata();
+  $content                   = $this->parser->parse('hr/reports/overall_state_summary', $data, true);
+  $this->template->full_admin_html_view($content);
+}
+
+
+
 public function state_tax_search_summary() {
     $CI = get_instance();
     $CI->load->model('Web_settings');
@@ -2963,29 +2970,6 @@ public function checkTimesheet() {
           $content                  = $this->parser->parse('hr/edit_timesheet', $data, true);
          $this->template->full_admin_html_view($content);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public function time_list($timesheet_id = null,$templ_name)
         {
            $CI = & get_instance();

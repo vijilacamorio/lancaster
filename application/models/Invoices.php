@@ -5596,11 +5596,25 @@ $query = '';
     $searchQuery = "";
 
     if ($searchValue != '') {
+        $originalDate = $searchValue;
+        $dateTime = $this->convertDateFormat($searchValue);
         $searchQuery = "(
             a.invoice_id LIKE '%" . $searchValue . "%' OR
-            a.date LIKE '%" . $searchValue . "%' OR
             b.customer_name LIKE '%" . $searchValue . "%' OR
-            a.total_amount LIKE '%" . $searchValue . "%'
+            a.commercial_invoice_number LIKE '%" . $searchValue . "%' OR
+            a.container_no LIKE '%" . $searchValue . "%' OR
+            a.customer_id LIKE '%" . $searchValue . "%' OR
+            a.date LIKE '%" . $dateTime . "%' OR
+            a.gtotal LIKE '%" . $searchValue . "%' OR
+            a.total_amount LIKE '%" . $searchValue . "%' OR
+            a.invoice_id LIKE '%" . $searchValue . "%' OR
+            a.billing_address LIKE '%" . $searchValue . "%' OR
+            a.total_tax LIKE '%" . $searchValue . "%' OR
+            a.paid_amount LIKE '%" . $searchValue . "%' OR
+            a.due_amount LIKE '%" . $searchValue . "%' OR
+            a.remark LIKE '%" . $searchValue . "%' OR
+            a.ac_details LIKE '%" . $searchValue . "%' OR
+            a.payment_type LIKE '%" . $searchValue . "%'
         )";  
     }
 
@@ -5613,19 +5627,32 @@ $query = '';
         $this->db->where($searchQuery);
     }
     $records = $this->db->get()->result_array();
-    //echo $this->db->last_query(); exit;
+   // echo $this->db->last_query(); exit;
     return $records[0]['total_count'];
 }
 public function getSalesdata($limit, $start, $orderField, $orderDirection, $searchValue) {
 
     $searchQuery = "";
         if($searchValue != ''){
+            $dateTime = $this->convertDateFormat($searchValue);
             $searchQuery = "(
                 a.invoice_id LIKE '%" . $searchValue . "%' OR
-                a.date LIKE '%" . $searchValue . "%' OR
                 b.customer_name LIKE '%" . $searchValue . "%' OR
-                a.total_amount LIKE '%" . $searchValue . "%'
-            )";         
+                a.commercial_invoice_number LIKE '%" . $searchValue . "%' OR
+                a.container_no LIKE '%" . $searchValue . "%' OR
+                a.customer_id LIKE '%" . $searchValue . "%' OR
+                a.date LIKE '%" . $dateTime . "%' OR
+                a.gtotal LIKE '%" . $searchValue . "%' OR
+                a.total_amount LIKE '%" . $searchValue . "%' OR
+                a.invoice_id LIKE '%" . $searchValue . "%' OR
+                a.billing_address LIKE '%" . $searchValue . "%' OR
+                a.total_tax LIKE '%" . $searchValue . "%' OR
+                a.paid_amount LIKE '%" . $searchValue . "%' OR
+                a.due_amount LIKE '%" . $searchValue . "%' OR
+                a.remark LIKE '%" . $searchValue . "%' OR
+                a.ac_details LIKE '%" . $searchValue . "%' OR
+                a.payment_type LIKE '%" . $searchValue . "%'
+            )";          
         }
         $this->db->select('a.*,a.id,a.invoice_id, a.date,a.sales_by,a.commercial_invoice_number,a.total_amount,b.customer_name');
         $this->db->from('invoice a');
@@ -5640,6 +5667,15 @@ public function getSalesdata($limit, $start, $orderField, $orderDirection, $sear
         $this->db->limit($limit, $start);
         $records = $this->db->get()->result();
         return $records;
+}
+function convertDateFormat($dateString) {
+    $dateTime = DateTime::createFromFormat('m-d-Y', $dateString);
+    
+    if ($dateTime && $dateTime->format('m-d-Y') === $dateString) {
+        return $dateTime->format('Y-m-d');
+    } else {
+        return 'Invalid date';
+    }
 }
 /* end of invoice view page */
  public function ocean_export($date=null) {
