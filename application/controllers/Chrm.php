@@ -46,32 +46,34 @@ public function formnj927()
     $this->session->set_userdata(array('message' => display('successfully_delete')));
    redirect("Chrm/manage_employee");
     }
- public function state_summary() {
-        $CI = &get_instance();
-        $CI->load->model('Web_settings');
-        $this->load->model('Hrm_model');
-        $setting_detail                 = $CI->Web_settings->retrieve_setting_editdata();
-        $data['setting_detail']         = $setting_detail;
-        $tax_name                       = urldecode($this->input->post('url'));
-        $emp_name                       = $this->input->post('employee_name');
-        $taxType                        = $this->input->post('taxType');
-        $date                           = $this->input->post('daterangepicker-field');
-        $data['state_tax_list']         = $CI->Hrm_model->stateTaxlist();
-        $data['state_summary_employee'] = $this->Hrm_model->state_summary_employee();
-        $data['state_list']             = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Status', 0)->where('Type', 'State')->group_by('id')->get()->result_array();
-        $data['state_summary_employer'] = $this->Hrm_model->state_summary_employer();
-        $data['emp_name']               = $this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
-        $employee_tax_data              = [];
-        foreach ($state_summary_employee as $employee_tax) {
-            $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
-        }
-        foreach ($state_summary_employer as $employer_tax) {
-            $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
-        }
-        $data['employee_tax_data'] = $employee_tax_data;
-        $content                   = $this->parser->parse('hr/reports/state_summary', $data, true);
-        $this->template->full_admin_html_view($content);
+public function state_summary(){
+    $CI = &get_instance();
+    $CI->load->model('Web_settings');
+    $this->load->model('Hrm_model');
+    $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
+    $data['setting_detail']            = $setting_detail;
+    $tax_name = urldecode($this->input->post('url'));
+    $emp_name = $this->input->post('employee_name');
+     $taxType = $this->input->post('taxType');
+    $date = $this->input->post('daterangepicker-field');
+    $data['state_tax_list'] = $CI->Hrm_model->stateTaxlist();
+    $data['state_summary_employee'] = $this->Hrm_model->state_summary_employee();
+    $data['state_list'] = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Status', 2)->group_by('id')->get()->result_array();
+    $data['state_summary_employer'] = $this->Hrm_model->state_summary_employer();
+    $data['emp_name']=$this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
+    // print_r($data['emp_name']);
+    $employee_tax_data = [];
+    foreach ($state_summary_employee as $employee_tax) {
+        $employee_tax_data[$employee_tax['time_sheet_id']][$employee_tax['tax_type'] . '_employee'] = $employee_tax['amount'];
     }
+    foreach ($state_summary_employer as $employer_tax) {
+        $employee_tax_data[$employer_tax['time_sheet_id']][$employer_tax['tax_type'] . '_employer'] = $employer_tax['amount'];
+    }
+    $data['employee_tax_data']=$employee_tax_data;
+  // print_r($data['employee_tax_data']);
+    $content = $this->parser->parse('hr/reports/state_summary', $data, true);
+    $this->template->full_admin_html_view($content);
+}
 public function state_tax_search_summary() {
     $CI = get_instance();
     $CI->load->model('Web_settings');
@@ -1034,28 +1036,28 @@ else {
             //Federal unemployment Upto First 7000
               $emp_salary_amt = $this->Hrm_model->get_employee_sal($data['timesheet_data'][0]['templ_name']);
               $all_ytd = $emp_salary_amt[0]['totalamout']; 
+        
               $this->db->select('h_rate, total_hours, extra_thisrate, SUM(extra_thisrate) as totalamout');
               $this->db->from('timesheet_info');
               $this->db->where('timesheet_info.month <=', date('Y-m-d'));
               $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') < STR_TO_DATE('$d1', '%m/%d/%Y')", NULL, FALSE);
               $this->db->where('templ_name', $data['timesheet_data'][0]['templ_name']);
               $query = $this->db->get(); 
-           
+
               $data['emp_salary_amt'] = $query->result_array(); 
               if (!empty($data['emp_salary_amt'])) {
                   $total = $data['emp_salary_amt'][0]['extra_thisrate'];
                   $ytd = $data['emp_salary_amt'][0]['totalamout'];
-              }  
+              }    
               $ytd_salary_amt = $this->Hrm_model->get_employee_sal_ytd($data['timesheet_data'][0]['templ_name']);
               $ytd_sal = $ytd_salary_amt[0]['overalltotal'];
-              
               $total_unemployment = $this->Hrm_model->total_unemployment($data['timesheet_data'][0]['templ_name']);        
               if($total_unemployment[0]['unempltotal'] < $details ){
                 if ($all_ytd <= $details) {
                 $uu = ($unemployment_employer / 100) * $final;
                 $uu = round($uu, 3);
                 $tax_amt_final = $final;
-              }  
+              } 
               elseif ($all_ytd > $details) {
                   $bal = $details  - $ytd_sal ;
                   $uu = ($unemployment_employer / 100) * $bal;
@@ -1067,13 +1069,12 @@ else {
               }
             }else{
               $uu = 0.00;
-
-            } 
-
+            }   
             $ar = $this->db->select('u_tax')->from('tax_history')->where('employee_id',$this->input->post('templ_name'))->get()->row()->u_tax;
             $u_tax=$ar+$u;
             }
-  
+   
+
        $state='';
        $living_state_tax_range='';
        $living_state_tax='';

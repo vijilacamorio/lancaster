@@ -2523,14 +2523,13 @@ public function get_taxname_living_monthly($lst_name){
          }
         return true;
     }
-
-
-    public function get_employee_sal_ytd($id){
+ 
+     public function get_employee_sal_ytd($id){
         $user_id = $this->session->userdata('user_id');
         $this->db->select('SUM(total_amount) as overalltotal');
         $this->db->from('info_payslip');
         $this->db->where('templ_name', $id); 
-        $this->db->where('tax', 'Unemployment'); 
+        $this->db->where_in('tax', ['Income tax', 'Unemployment']);
         $this->db->where('create_by', $user_id); 
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
@@ -2538,6 +2537,5 @@ public function get_taxname_living_monthly($lst_name){
          }
         return true;
     }
-
 
 }
