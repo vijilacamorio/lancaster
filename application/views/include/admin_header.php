@@ -15,9 +15,10 @@
     $users = $CI->Users->profile_edit_data();
  
     $state_tax_list = $CI->Hrm_model->state_tax_list();
-//    $state_tax_list_living = $CI->Hrm_model->state_tax_list_living();
+
+    $state_tax_list_living = $CI->Hrm_model->state_tax_list_living();
  
-    // $merged_state_tax_list = array_merge($state_tax_list, $state_tax_list_living);
+ 
 
    ?>
 <style>
@@ -874,39 +875,64 @@
                       <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/federal_summary"><?php echo ('Overall Summary');?></a></li>
                </ul>
             </li>
-              <li class="treeview  ">
+
+
+
+
+    <li class="treeview  ">
               <a href="#">
                <i class=""></i> <span><?php echo ('State Tax'); ?></span>
                <span class="pull-right-container">
                <i class="fa fa-angle-left pull-right"></i>
                </span>
                </a>
+               <ul class="treeview-menu">
+                  <?php if (!empty($state_tax_list)) : ?>
+                  <?php foreach ($state_tax_list as $st) : ?>
+                  <li class="treeview">
+                  <a href="<?php echo base_url('Chrm/report/' . $st['tax']); ?>"><?php echo $st['tax']; ?></a>
+                  </li>
+                  <?php endforeach; ?>
+                  <?php else : ?>
+                  <li>No state taxes available</li>
+                  <?php endif; ?>
+               </ul>
+    </li>
 
 
-                           <ul class="treeview-menu">
-                           <?php if (!empty($state_tax_list)) : ?>
-    <?php foreach ($state_tax_list as $st) : ?>
-    <li class="treeview">
-     <a href="<?php echo base_url('Chrm/report/' . $st['tax']); ?>"><?php echo $st['tax']; ?></a>
-     </li>
-    <?php endforeach; ?>
-    <?php else : ?>
-    <li>No state taxes available</li>
-    <?php endif; ?>
+    <li class="treeview  ">
+              <a href="#">
+               <i class=""></i> <span><?php echo ('Living Tax'); ?></span>
+               <span class="pull-right-container">
+               <i class="fa fa-angle-left pull-right"></i>
+               </span>
+               </a>
+               <ul class="treeview-menu">
+                  <?php if (!empty($state_tax_list_living)) : ?>
+                  <?php foreach ($state_tax_list_living as $st) : ?>
+                  <li class="treeview">
+                  <a href="<?php echo base_url('Chrm/report/' . $st['tax']); ?>"><?php echo $st['tax']; ?></a>
+                  </li>
+                  <?php endforeach; ?>
+                  <?php else : ?>
+                  <li>No state taxes available</li>
+                  <?php endif; ?>
+               </ul>
+    </li>
+
+
     <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/state_summary"><?php echo ('Overall Summary');?></a></li>
-    </ul>
+              
+    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_local_tax"><?php  echo ('City Tax');?></a></li>
+    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_tax_report"><?php  echo ('County Tax');?></a></li>                             
+    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/other_tax"><?php  echo ('Other Taxes');?></a></li>
 
+     <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/OverallSummary"><?php  echo ('Overall Summary');?></a></li>
 
-
-
-                                   
-                        </li>
-                    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_local_tax"><?php  echo ('City Tax');?></a></li>
-                       <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_tax_report"><?php  echo ('County Tax');?></a></li>       
-                            
-                                 <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/other_tax"><?php  echo ('Other Taxes');?></a></li>
                            </ul>
+               
                         </li>
+                       
          </ul>
       </li>
       <!-- Human Resource New menu end -->
