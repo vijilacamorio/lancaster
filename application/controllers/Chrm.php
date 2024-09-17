@@ -1,5 +1,5 @@
 <?php
- error_reporting(0);
+ error_reporting(1);
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 class Chrm extends CI_Controller {
@@ -58,7 +58,7 @@ public function state_summary(){
     $date = $this->input->post('daterangepicker-field');
     $data['state_tax_list'] = $CI->Hrm_model->stateTaxlist();
     $data['state_summary_employee'] = $this->Hrm_model->state_summary_employee();
-    $data['state_list'] = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Status', 2)->group_by('id')->get()->result_array();
+    $data['state_list'] = $this->db->select('*')->from('state_and_tax')->order_by('state', 'ASC')->where('created_by', $this->session->userdata('user_id'))->where('Type','State')->where('Status', 0)->group_by('id')->get()->result_array();
     $data['state_summary_employer'] = $this->Hrm_model->state_summary_employer();
     $data['emp_name']=$this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
     // print_r($data['emp_name']);
@@ -75,7 +75,8 @@ public function state_summary(){
 }
 public function OverallSummary(){
   $data['setting_detail']         = $this->Web_settings->retrieve_setting_editdata();
-  $content                   = $this->parser->parse('hr/reports/overall_state_summary', $data, true);
+  $data['emp_name']=$this->db->select('*')->from('employee_history')->where('create_by', $this->session->userdata('user_id'))->get()->result_array();
+  $content                   = $this->parser->parse('hr/reports/overall_summary', $data, true);
   $this->template->full_admin_html_view($content);
 }
 
@@ -234,10 +235,8 @@ public function report($tax_name = '') {
     $employee_name = $this->input->post('employee_name');
     $data['tax_n'] = $tax_name;
     if (!empty($tax_name)) {
-        // Fetching state tax reports
         $data['state_tax_report'] = $this->Hrm_model->state_tax_report($employee_name, $tax_name, $date);
         $data['living_state_tax_report'] = $this->Hrm_model->living_state_tax_report($employee_name, $tax_name, $date);
-        // Merging state and living state tax reports
         $merged_array = [];
         foreach ($data['state_tax_report'] as $state_tax) {
             $time_sheet_id = $state_tax['time_sheet_id'];
@@ -248,21 +247,14 @@ public function report($tax_name = '') {
             $merged_array[$time_sheet_id]['living_state_tax'][] = $living_state_tax;
         }
         $data['merged_reports'] = $merged_array;
-        // Fetching employer state tax reports
         $data['employer_state_tax_report'] = $this->Hrm_model->employer_state_tax_report($employee_name, $tax_name, $date);
         $data['employer_living_state_tax_report'] = $this->Hrm_model->employer_living_state_tax_report($employee_name, $tax_name, $date);
- 
-        // Check if the employer state tax report is empty
         if (empty($data['employer_state_tax_report'])) {
-            // If empty, use employer living state tax report data
             $data['employer_state_tax_report'] = $data['employer_living_state_tax_report'];
         }
-        // Check if the employer living state tax report is empty
         if (empty($data['employer_living_state_tax_report'])) {
-            // If empty, use employer state tax report data
             $data['employer_living_state_tax_report'] = $data['employer_state_tax_report'];
         }
-        // Merging employer state and living state tax reports
         $merged_array_employer = [];
         foreach ($data['employer_state_tax_report'] as $state_tax) {
             $time_sheet_id = $state_tax['time_sheet_id'];
@@ -273,8 +265,6 @@ public function report($tax_name = '') {
             $merged_array_employer[$time_sheet_id]['living_state_tax'][] = $living_state_tax;
         }
         $data['merged_reports_employer'] = $merged_array_employer;
-        print_r( $data['merged_reports_employer']);//die();
-        // Parse and display the final report
         $content = $this->parser->parse('hr/reports/state_report', $data, true);
         $this->template->full_admin_html_view($content);
     }
@@ -303,8 +293,7 @@ $employee_name =  $_POST['employee_name'];
               $merged_array[$time_sheet_id]['living_state_tax'][] = $living_state_tax;
           }
           $data['merged_reports'] = $merged_array;
-      //    print_r($data['merged_reports']);
-          // Employer
+      
       $data['employer_state_tax_report'] = $this->Hrm_model->employer_state_tax_report($employee_name,$tax_name, $date);
 $data['employer_living_state_tax_report'] = $this->Hrm_model->employer_living_state_tax_report($employee_name,$tax_name, $date);
 $merged_array_employer = [];
@@ -317,7 +306,6 @@ foreach ($data['employer_living_state_tax_report'] as $living_state_tax) {
     $merged_array_employer[$time_sheet_id]['living_state_tax'][] = $living_state_tax;
 }
 $data['merged_reports_employer'] = $merged_array_employer;
-//print_r($data['merged_reports_employer']);
           $content = $this->parser->parse('hr/reports/state_report', $data, true);
           $this->template->full_admin_html_view($content);
       } 
@@ -329,16 +317,13 @@ public function other_tax() {
     $data['employee_data'] = $this->Hrm_model->employee_data_get();
     $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
     $data['setting_detail'] = $setting_detail;
-  $employee_other_tax = $this->Hrm_model->other_tax_report();
+    $employee_other_tax = $this->Hrm_model->other_tax_report();
     $employer_other_tax = $this->Hrm_model->other_tax_employer_report();
-    // Merge data based on timesheet IDs
     $merged_array = [];
-    // Restructure employee_other_tax array
     foreach ($employee_other_tax as $employee_tax) {
         $time_sheet_id = $employee_tax['time_sheet_id'];
         $merged_array[$time_sheet_id]['employee_other_tax'][] = $employee_tax;
     }
-    // Merge employer_other_tax
     foreach ($employer_other_tax as $employer_tax) {
         $time_sheet_id = $employer_tax['time_sheet_id'];
         $merged_array[$time_sheet_id]['employer_other_tax'][] = $employer_tax;
@@ -351,33 +336,26 @@ public function other_tax_search() {
     $CI = & get_instance();
     $CI->load->model('Web_settings');
     $this->load->model('Hrm_model');
-  $emp_name=$this->input->post('employee_name');
+    $emp_name=$this->input->post('employee_name');
     $date=$this->input->post('daterangepicker-field');
     $data['employee_data'] = $this->Hrm_model->employee_data_get();
     $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
     $data['setting_detail'] = $setting_detail;
-  $employee_other_tax = $this->Hrm_model->other_tax_report_search($emp_name,$date);
+    $employee_other_tax = $this->Hrm_model->other_tax_report_search($emp_name,$date);
     $employer_other_tax = $this->Hrm_model->other_tax_employer_report_search($emp_name,$date);
-    // Merge data based on timesheet IDs
     $merged_array = [];
-    // Restructure employee_other_tax array
-    foreach ($employee_other_tax as $employee_tax) {
+     foreach ($employee_other_tax as $employee_tax) {
         $time_sheet_id = $employee_tax['time_sheet_id'];
         $merged_array[$time_sheet_id]['employee_other_tax'][] = $employee_tax;
     }
-    // Merge employer_other_tax
-    foreach ($employer_other_tax as $employer_tax) {
+     foreach ($employer_other_tax as $employer_tax) {
         $time_sheet_id = $employer_tax['time_sheet_id'];
         $merged_array[$time_sheet_id]['employer_other_tax'][] = $employer_tax;
     }
     $data['merged_reports'] = $merged_array;
-echo json_encode($data['merged_reports']);
-}
-
-
-
-
-
+    echo json_encode($data['merged_reports']);
+ }
+ 
 
 public function newfederaltax()
 {
@@ -1598,10 +1576,9 @@ if(isset($split[2])) {
 $this->db->query($sql);
  }
  if($data['employee_data'][0]['payroll_type'] == 'Hourly'){
-  $minValue = $final; // Example minimum value of your range
-  $maxValue = $final; // Example maximum value of your range
-  // $data['tax_name'] = $this->Hrm_model->get_taxname_hourly();
-  // print_r($data['tax_name']); die();
+  $minValue = $final; 
+  $maxValue = $final; 
+  
   $emp_tax = $data['employee_data'][0]['employee_tax'];
   $query = "SELECT `$emp_tax`
   FROM `state_localtax`
@@ -2002,7 +1979,6 @@ if(isset($split[2])) {
             $code = '';
         }
           $code=str_replace("'","",$code);
-          // print_r($code); die();
 ///////////////////////////////////////////// Start Code Here /////////////////////////////////////////
 if($data['employee_data'][0]['payroll_type'] == 'Hourly'){
   $minValue = $final; // Example minimum value of your range
@@ -2970,7 +2946,7 @@ public function checkTimesheet() {
           $content                  = $this->parser->parse('hr/edit_timesheet', $data, true);
          $this->template->full_admin_html_view($content);
         }
-public function time_list($timesheet_id = null,$templ_name)
+public function time_list($timesheet_id = null,$templ_name=null)
         {
            $CI = & get_instance();
            $CC = & get_instance();
@@ -6614,6 +6590,7 @@ public function manage_workinghours()
         $content = $this->parser->parse("hr/workinghour_list", $data, true);
         $this->template->full_admin_html_view($content);
     }
+  
     public function working_hours()
     {
         $CI = &get_instance();
