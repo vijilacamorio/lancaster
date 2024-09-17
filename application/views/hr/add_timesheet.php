@@ -846,13 +846,6 @@ $('.table').each(function () {
     total_netH += tableHours;
     total_netM += tableMinutes;
 });
-/*alert('total_net'+total_netH+'.'+total_netM);
-var hours = Math.floor(total_net);
-var minutes = Math.round((total_net % 1) * 100); 
-if (minutes === 100) {
-    hours += 1;
-    minutes = 0;
-}*/
 var timeConvertion = convertToTime(total_netH ,total_netM);
 $('#total_net').val(timeConvertion).trigger('change');
 });

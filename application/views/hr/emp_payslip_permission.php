@@ -1157,152 +1157,8 @@ function parseTime(s) {
     return Math.floor(parseInt(s) / 60) + "." + parseInt(s) % 60
 }
 
-$(document).on('select change'  ,'.end','.dailybreak', function () {
 
 
-
- var $begin = $(this).closest('tr').find('.start').val();
-    var $end = $(this).closest('tr').find('.end').val();
-
-    // Calculate time difference
-    let valuestart = moment($begin, "HH:mm");
-    let valuestop = moment($end, "HH:mm");
-    let timeDiff = moment.duration(valuestop.diff(valuestart));
-
-    // Capture the selected daily break in minutes
-    var dailyBreakValue = parseInt($(this).closest('tr').find('.dailybreak').val()) || 0;
-
-    // Subtract daily break time from timeDiff in minutes
-    var totalMinutes = timeDiff.asMinutes() - dailyBreakValue;
-
-    // Calculate the hours and minutes
-    var hours = Math.floor(totalMinutes / 60);
-    var minutes = totalMinutes % 60;
-
-    // Format the result as "HH:mm"
-    var formattedTime = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0');
-
-    $(this).closest('tr').find('.timeSum').val(formattedTime);
-debugger;
-var total_net = 0;
-
-$('.table').each(function () {
-    var tableTotal = 0;
-
-    $(this).find('.timeSum').each(function () {
-        var precio = $(this).val();
-        if (!isNaN(precio) && precio.length !== 0) {
-            var [hours, minutes] = precio.split('.').map(parseFloat);
-            tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
-        }
-    });
-
-    total_net += tableTotal;
-});
-
-// Convert the total back to hours and minutes format
-var hours = Math.floor(total_net);
-var minutes = Math.round((total_net % 1) * 100); // Multiply by 100 to get the minutes
-
-if (minutes === 100) {
-    hours += 1;
-    minutes = 0;
-}
-
-$('#total_net').val(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0')).trigger('change');
-
-});
-
-$(document).on('select change'  ,'.start','.dailybreak', function () {
-
-
-
-
- var $begin = $(this).closest('tr').find('.start').val();
-    var $end = $(this).closest('tr').find('.end').val();
-
-    // Calculate time difference
-    let valuestart = moment($begin, "HH:mm");
-    let valuestop = moment($end, "HH:mm");
-    let timeDiff = moment.duration(valuestop.diff(valuestart));
-
-    // Capture the selected daily break in minutes
-    var dailyBreakValue = parseInt($(this).closest('tr').find('.dailybreak').val()) || 0;
-
-    // Subtract daily break time from timeDiff in minutes
-    var totalMinutes = timeDiff.asMinutes() - dailyBreakValue;
-
-    // Calculate the hours and minutes
-    var hours = Math.floor(totalMinutes / 60);
-    var minutes = totalMinutes % 60;
-
-    // Format the result as "HH:mm"
-    var formattedTime = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0');
-
-    $(this).closest('tr').find('.timeSum').val(formattedTime);
-debugger;
-var total_net = 0;
-
-$('.table').each(function () {
-    var tableTotal = 0;
-
-    $(this).find('.timeSum').each(function () {
-        var precio = $(this).val();
-        if (!isNaN(precio) && precio.length !== 0) {
-            var [hours, minutes] = precio.split('.').map(parseFloat);
-            tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
-        }
-    });
-
-    total_net += tableTotal;
-});
-
-// Convert the total back to hours and minutes format
-var hours = Math.floor(total_net);
-var minutes = Math.round((total_net % 1) * 100); // Multiply by 100 to get the minutes
-
-if (minutes === 100) {
-    hours += 1;
-    minutes = 0;
-}
-
-$('#total_net').val(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0')).trigger('change');
-
-});
-
-
-$(document).on('input','.timeSum', function () {
-    // $(".timeSum").change(function(){
-
-    var $addtotal = $(this).closest('tr').find('.timeSum').val();
-
-    // alert($addtotal);
-
-
-    });
-
-
-// var timeOptions = {
-//   interval: 15,
-// dropdown: true,
-// change: function(time) {
-//   sumHours();
-// }
-// }
-
-
-// $begin.timepicker(timeOptions);
-// $end.timepicker(timeOptions);
-
-
-// $(document).on('focus', $end, function() {
-// $(this).select();  // select entire text on focus
-// });
-
-
-// $begin.on("click, focus", function () {
-// $(this).select();
-// });
 
 $('body').on('keyup','.end',function(){
 //    debugger;
@@ -1342,32 +1198,7 @@ var data = {
 
 
     });
-function sumHours () {
 
-    var time1 = $begin.timepicker().getTime();
-    var time2 = $end.timepicker().getTime();
-
-    if ( time1 && time2 ) {
-      if ( time1 > time2 ) {
-        //Correct the day so second entry is always 
-        //after first, as in midnight shift. Use a new 
-        //date object so original is not incremented.
-        v = new Date(time2);
-        v.setDate(v.getDate() + 1);
-      } else {
-        v = time2;
-      }
-
-      var diff = ( Math.abs( v - time1) / 36e5 ).toFixed(2);
-      $input.val(diff); 
-      
-    } else {
-
-      $input.val(''); 
-
-      alert($input);
-    }
-}
 $(document).ready(function() {
     function updateCounter() {
         var sumOfDays = $('input[type="checkbox"].present:checked').length;
@@ -1389,6 +1220,118 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+$(document).on('select change'  ,'.end','.dailybreak', function () {
+ var $begin = $(this).closest('tr').find('.start').val();
+    var $end = $(this).closest('tr').find('.end').val();
+    let valuestart = moment($begin, "HH:mm");
+    let valuestop = moment($end, "HH:mm");
+    let timeDiff = moment.duration(valuestop.diff(valuestart));
+    var dailyBreakValue = parseInt($(this).closest('tr').find('.dailybreak').val()) || 0;
+    var totalMinutes = timeDiff.asMinutes() - dailyBreakValue;
+    var hours = Math.floor(totalMinutes / 60);
+    var minutes = totalMinutes % 60;
+    var formattedTime = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0');
+    $(this).closest('tr').find('.timeSum').val(formattedTime);
+//var total_net = 0;
+var total_netH = 0;
+var total_netM = 0;
+$('.table').each(function () {
+    var tableTotal = 0;
+    var tableHours = 0;
+    var tableMinutes = 0;
+    $(this).find('.timeSum').each(function () {
+        var precio = $(this).val();
+        if (!isNaN(precio) && precio.length !== 0) {
+            var [hours, minutes] = precio.split('.').map(parseFloat);
+            //tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            tableHours += hours;
+            tableMinutes += minutes;
+        }
+    });
+    total_netH += tableHours;
+    total_netM += tableMinutes;
+});
+var timeConvertion = convertToTime(total_netH ,total_netM);
+$('#total_net').val(timeConvertion).trigger('change');
+});
+$(document).on('select change'  ,'.start','.dailybreak', function () {
+ var $begin = $(this).closest('tr').find('.start').val();
+    var $end = $(this).closest('tr').find('.end').val();
+    let valuestart = moment($begin, "HH:mm");
+    let valuestop = moment($end, "HH:mm");
+    let timeDiff = moment.duration(valuestop.diff(valuestart));
+    var dailyBreakValue = parseInt($(this).closest('tr').find('.dailybreak').val()) || 0;
+    var totalMinutes = timeDiff.asMinutes() - dailyBreakValue;
+    var hours = Math.floor(totalMinutes / 60);
+    var minutes = totalMinutes % 60;
+    var formattedTime = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0');
+if (isNaN(parseFloat(formattedTime))) {
+     $(this).closest('tr').find('.timeSum').val('00.00');
+}else{
+    $(this).closest('tr').find('.timeSum').val(formattedTime);
+}
+
+//var total_net = 0;
+var total_netH =0;
+var total_netM =0;
+$('.table').each(function () {
+    var tableTotal = 0;
+    var tableHours = 0;
+    var tableMinutes = 0;
+    $(this).find('.timeSum').each(function () {
+        var precio = $(this).val();
+        if (!isNaN(precio) && precio.length !== 0) {
+            var [hours, minutes] = precio.split('.').map(parseFloat);
+            //tableTotal += hours + minutes / 100; // Dividing minutes by 100 to get the correct decimal value
+            tableHours += hours;
+            tableMinutes += minutes;
+        }
+    });
+    //total_net += tableTotal;
+    total_netH += tableHours;
+    total_netM += tableMinutes;
+});
+/*alert('total_net:'+total_netH+'.'+total_netM);
+// Convert the total back to hours and minutes format
+var hours = Math.floor(total_net);
+var minutes = Math.round((total_net % 1) * 100); // Multiply by 100 to get the minutes
+if (minutes === 100) {
+    hours += 1;
+    minutes = 0;
+}*/
+var timeConvertion = convertToTime(total_netH,total_netM);
+$('#total_net').val(timeConvertion).trigger('change');
+});
+$(document).on('input','.timeSum', function () {
+    // $(".timeSum").change(function(){
+    var $addtotal = $(this).closest('tr').find('.timeSum').val();
+    // alert($addtotal);
+    });
+function sumHours () {
+    var time1 = $begin.timepicker().getTime();
+    var time2 = $end.timepicker().getTime();
+    if ( time1 && time2 ) {
+      if ( time1 > time2 ) {
+        v = new Date(time2);
+        v.setDate(v.getDate() + 1);
+      } else {
+        v = time2;
+      }
+      var diff = ( Math.abs( v - time1) / 36e5 ).toFixed(2);
+      $input.val(diff); 
+    } else {
+      $input.val(''); 
+    }
+}
+$('#total_net').on('keyup',function(){
+    var value=$(this).val();
+   if($(this).val() == ''){
+$(".hasTimepicker").prop("readonly", false);
+    $('#tBody .hasTimepicker').prop('defaultValue');  
+    }else{
+   $(".hasTimepicker").prop("readonly", true); 
+    }
+});
 $(document).on('click','.delete_day',function(){
 $(this).closest('tr').remove();
  var total_net=0;
@@ -1399,23 +1342,22 @@ $(this).closest('tr').remove();
           total_net += parseFloat(precio);
         }
       });
-
   });
-//   console.log(total_net.toFixed(3));
-$('#total_net').val(total_net.toFixed(2)).trigger('change');
-  var firstDate = $('.date input').first().val(); // Get the value of the first date input
-    var lastDate = $('.date input').last().val(); // Get the value of the last date input
-
-    // Function to convert date format from 'd/m/y' to 'm/d/y'
+  $('#total_net').val(total_net.toFixed(2)).trigger('change');
+  var firstDate = $('.date input').first().val(); 
+    var lastDate = $('.date input').last().val(); 
     function convertDateFormat(dateStr) {
         const [day, month, year] = dateStr.split('/');
         return `${month}/${day}/${year}`;
     }
-
-    // Convert first and last dates to 'm/d/y' format
     var firstDateMDY = convertDateFormat(firstDate);
     var lastDateMDY = convertDateFormat(lastDate);
   $('#reportrange').val(firstDateMDY + ' - ' + lastDateMDY);
-
 });
+function convertToTime(hr,min) {
+    let hours = Math.floor(min / 60);
+    let minutes = min % 60;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours+hr}:${minutes}`;
+}
 </script>
