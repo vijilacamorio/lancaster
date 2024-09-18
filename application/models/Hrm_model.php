@@ -1217,6 +1217,8 @@ $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), 
         }
         return false;
 }
+
+
  public function local_state_tax($employee_status,$final,$local_tax_range){
         $this->db->select('employee,employer');
         $this->db->from('state_localtax');
@@ -2545,7 +2547,7 @@ public function get_taxname_living_monthly($lst_name){
  
      public function get_employee_sal_ytd($id){
         $user_id = $this->session->userdata('user_id');
-        $this->db->select('SUM(total_amount) as overalltotal');
+        $this->db->select('SUM(total_amount) as overalltotal ,sc');
         $this->db->from('info_payslip');
         $this->db->where('templ_name', $id); 
         $this->db->where_in('tax', ['Income tax', 'Unemployment']);

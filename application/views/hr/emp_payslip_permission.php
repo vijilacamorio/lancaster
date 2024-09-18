@@ -596,14 +596,7 @@ th,td{
     <input readonly type="hidden" name="block[]" id="block_<?php echo $i++; ?>" value="<?php echo (isset($tsheet['present']) && $tsheet['present'] === 'absent') ? 'absent' : 'present'; ?>" />
 </td>
 
-
-    <!-- <td class="hours-worked">
-        <input name="present[<?php echo $date; ?>]" class="timeSum" type="checkbox"
-        <?php // echo (isset($tsheet[$date]) && $tsheet[$date] === 'yes') ? 'checked' : ''; ?>
-        <?php  //echo (!isset($tsheet[$date]) || $tsheet[$date] === 'no') ? 'disabled' : ''; ?>>
-    </td> -->
-
-
+ 
 <?php }
 
 
@@ -622,13 +615,10 @@ elseif ($employee_name[0]['payroll_type'] == 'Hourly') { ?>
          </td>
 
                 <?php } elseif ($employee_name[0]['payroll_type'] == 'Salaried-weekly' || $employee_name[0]['payroll_type'] == 'Salaried-BiWeekly' || $employee_name[0]['payroll_type'] == 'Salaried-Monthly' || $employee_name[0]['payroll_type'] == 'Salaried-BiMonthly') { ?>
-         <!--           <td>-->
-         <!--           <a style='color:white;' class="delete_day btnclr btn  m-b-5 m-r-2"><i class="fa fa-trash" aria-hidden="true"></i> </a>-->
-         <!--</td>-->
+    
 
                 <?php } elseif ($employee_name[0]['payroll_type'] == 'SalesCommission') { ?>
-    <!-- Your code for 'SalesCommission' payroll type here, if any -->
-<?php } ?>
+ <?php } ?>
             </tr>
 <?php
         }
@@ -647,34 +637,80 @@ elseif ($employee_name[0]['payroll_type'] == 'Hourly') { ?>
                                
                                 <tfoot>
           
-                                <tr style="text-align:end"> 
+                       <tr style="text-align:end"> 
 
  
 
                   <?php if ($employee_name[0]['payroll_type'] == 'Hourly') { ?>
                         <td colspan="5" class="text-right" style="font-weight:bold;">Total Hours :</td>
                       <td style="text-align: center;"> <input  type="text"   readonly id="total_net" value="<?php echo $time_sheet_data[0]['total_hours'] ; ?>" name="total_net" />    </td>
- <?php  if($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) { ?>
-    <input  type="hidden"   readonly id="above_extra_beforehours"
+
+ <?php 
+
+
+ if($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) { ?>
+    <input  type="text"   readonly id="above_extra_beforehours"
      value="<?php
      $mins  =  $time_sheet_data[0]['total_hours'] - $extratime_info[0]['work_hour'];
      $get_value  =  $time_sheet_data[0]['total_hours'] - $mins;
      echo $get_value
      ; ?>"
+         <?php
+      //For This Period
+$hrate = $employee_name[0]['hrate']; 
+list($hours, $minutes) = explode(':', $get_value);
+
+// Convert to decimal hours
+$total_hours = (int)$hours + ((int)$minutes / 60); // This should yield 25.5
+  
+// Calculate total cost
+$total_cost = $total_hours * $hrate; // This should yield 2550
+
+// Round the total cost
+$total_cost = round($total_cost, 2);
+//For YTD
+$total=$time_sheet_data[0]['total_hours'];
+list($hours, $minutes) = explode(':', $total);
+$total_hours_ytd = $hours + ($minutes / 60);
+$total_cost_ytd = $total_hours_ytd * $hrate;
+$total_cost_ytd =round($total_cost_ytd,2);
+   ?>
      name="above_extra_beforehours" />
-        <input type="hidden" id="above_extra_rate" name="above_extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
-        <input type="hidden" id="above_extra_sum" name="above_extra_sum" value="<?php echo  $get_value * $employee_name[0]['hrate'] ; ?>" />
-        <input type="hidden" id="above_this_hours" name="above_this_hours" value="<?php echo  $get_value; ?>" />
-        <input type="hidden" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $get_value * $employee_name[0]['hrate'] ; ?>" />
-        <?php } else{ ?>
-        <input type="hidden" readonly id="above_extra_beforehours"
+
+        <input type="text" id="above_extra_rate" name="above_extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
+        <input type="text" id="above_extra_sum" name="above_extra_sum" value="<?php echo  $total_cost ; ?>" />
+        <input type="text" id="above_this_hours" name="above_this_hours" value="<?php echo  $get_value; ?>" />
+        <input type="text" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $total_cost ; ?>" />
+        <?php } else{
+                
+      //For This Period
+$hrate = $employee_name[0]['hrate']; 
+list($hours, $minutes) = explode(':', $get_value);
+
+// Convert to decimal hours
+$total_hours = (int)$hours + ((int)$minutes / 60); // This should yield 25.5
+  
+// Calculate total cost
+$total_cost = $total_hours * $hrate; // This should yield 2550
+
+// Round the total cost
+$total_cost = round($total_cost, 2);
+//For YTD
+$total=$time_sheet_data[0]['total_hours'];
+list($hours, $minutes) = explode(':', $total);
+$total_hours_ytd = $hours + ($minutes / 60);
+$total_cost_ytd = $total_hours_ytd * $hrate;
+$total_cost_ytd =round($total_cost_ytd,2);
+   ?> 
+        <input type="text" readonly id="above_extra_beforehours"
         value="<?php   echo $time_sheet_data[0]['total_hours'];
         ?>" name="above_extra_beforehours" />
         <input type="hidden" id="above_extra_rate" name="above_extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
-        <input type="hidden" id="above_extra_sum" name="above_extra_sum" value="<?php echo  $time_sheet_data[0]['total_hours'] * $employee_name[0]['hrate'] ; ?>" />
+        <input type="hidden" id="above_extra_sum" name="above_extra_sum" value="<?php echo  $total_cost_ytd ; ?>" />
         <input type="hidden" id="above_this_hours" name="above_this_hours" value="<?php echo $time_sheet_data[0]['total_hours']; ?>" />
-        <input type="hidden" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $time_sheet_data[0]['total_hours'] * $employee_name[0]['hrate']; ?>" />
-        <?php } ?>
+        <input type="hidden" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $total_cost_ytd; ?>" />
+      
+      <?php } ?>
                     <?php } elseif ($employee_name[0]['payroll_type'] == 'Salaried-weekly' || $employee_name[0]['payroll_type'] == 'Salaried-BiWeekly' || $employee_name[0]['payroll_type'] == 'Salaried-Monthly' || $employee_name[0]['payroll_type'] == 'Salaried-BiMonthly') { ?>
                     <td colspan="2" class="text-right" style="font-weight:bold;">No of Days:</td>
                       <td style="text-align: center;"> <input  type="text"   readonly id="total_net" value="<?php echo $time_sheet_data[0]['total_hours'] ; ?>" name="total_net" />    </td>
@@ -686,10 +722,13 @@ elseif ($employee_name[0]['payroll_type'] == 'Hourly') { ?>
      echo $get_value
      ; ?>"
      name="above_extra_beforehours" />
+       
         <input type="hidden" id="above_extra_rate" name="above_extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
         <input type="hidden" id="above_extra_sum" name="above_extra_sum" value="<?php echo  $get_value * $employee_name[0]['hrate'] ; ?>" />
         <input type="hidden" id="above_this_hours" name="above_this_hours" value="<?php echo  $get_value; ?>" />
         <input type="hidden" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $get_value * $employee_name[0]['hrate'] ; ?>" />
+       
+       
         <?php } else{ ?>
         <input type="hidden" readonly id="above_extra_beforehours"
         value="<?php   echo $time_sheet_data[0]['total_hours'];
@@ -700,22 +739,64 @@ elseif ($employee_name[0]['payroll_type'] == 'Hourly') { ?>
         <input type="hidden" id="above_extra_ytd" name="above_extra_ytd" value="<?php echo  $time_sheet_data[0]['total_hours'] * $employee_name[0]['hrate']; ?>" />
         <?php } ?>
                   
+                  
                       <?php } elseif ($employee_name[0]['payroll_type'] == 'SalesCommission') { ?>
                    <?php } ?>
                                  </tr>
                                  <br>
-                                 <?php  if($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) { ?>
-                                 <input type="hidden" id="extra_hour" name="extra_hour" value="<?php echo ($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) ? ($time_sheet_data[0]['total_hours'] -  $extratime_info[0]['work_hour']) : '0'; ?>" />
-                                 <input type="hidden" id="extra_rate" name="extra_rate" value="<?php echo  $employee_name[0]['hrate'] * $extratime_info[0]['extra_workamount']; ?>" />
-                                 <input type="hidden" id="extra_thisrate" name="extra_thisrate" value="<?php echo ($time_sheet_data[0]['total_hours'] - $extratime_info[0]['work_hour']) * ($employee_name[0]['hrate'] * $extratime_info[0]['extra_workamount']); ?>" />
-                                 <input type="hidden" id="extra_this_hour" name="extra_this_hour" value="<?php   echo  ($time_sheet_data[0]['total_hours'] -  $extratime_info[0]['work_hour']); ?>" />
-                                 <input type="hidden" id="extra_ytd" name="extra_ytd" value="<?php echo ($time_sheet_data[0]['total_hours'] - $extratime_info[0]['work_hour']) * ($employee_name[0]['hrate'] * $extratime_info[0]['extra_workamount']); ?>"   />
-                                 <?php    } else{  ?>
+                                 <?php  if($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) {
+                                    
+$total_hours = $time_sheet_data[0]['total_hours']; // Total hours in hh:mm format
+$work_hour = $extratime_info[0]['work_hour']; // Work hours to subtract in hh:mm format
+
+$hourly_rate = $employee_name[0]['hrate'] * $extratime_info[0]['extra_workamount'];     // Cost per hour
+
+// Split total hours
+list($totalH, $totalM) = explode(':', $total_hours);
+$totalMinutes = ($totalH * 60) + (int)$totalM; // Convert to total minutes
+
+// Split work hours
+list($workH, $workM) = explode(':', $work_hour);
+$workMinutes = ($workH * 60) + (int)$workM; // Convert to total minutes
+
+// Calculate remaining minutes
+$remainingMinutes = $totalMinutes - $workMinutes;
+
+if ($remainingMinutes < 0) {
+    $remainingMinutes = 0; // Ensure it doesn't go negative
+}
+
+// Convert remaining minutes back to hh:mm format
+$remainingHours = floor($remainingMinutes / 60);
+$remainingMinutes = $remainingMinutes % 60;
+$get_value = sprintf('%02d:%02d', $remainingHours, $remainingMinutes); // Remaining time in hh:mm format
+
+// Convert remaining time to decimal hours
+list($hours, $minutes) = explode(':', $get_value);
+$total_hours_decimal = (int)$hours + ((int)$minutes / 60); // Convert to decimal
+
+// Calculate total cost
+$total_cost = $total_hours_decimal * $hourly_rate;
+
+// Optional: Round the total cost
+$total_cost = round($total_cost, 2);
+ ?>
+                                 <input type="text" id="extra_hour" name="extra_hour" value="<?php echo ($time_sheet_data[0]['total_hours'] > $extratime_info[0]['work_hour']) ? ($get_value) : '0'; ?>" />
+                                 <input type="text" id="extra_rate" name="extra_rate" value="<?php echo  $employee_name[0]['hrate'] * $extratime_info[0]['extra_workamount']; ?>" />
+                                 <input type="text" id="extra_thisrate" name="extra_thisrate" value="<?php echo $total_cost; ?>" />
+                                 <input type="text" id="extra_this_hour" name="extra_this_hour" value="<?php   echo  ($get_value); ?>" />
+                                 <input type="text" id="extra_ytd" name="extra_ytd" value="<?php echo  $total_cost; ?>"   />
+                                 <?php    } else{ 
+                      list($hours, $minutes) = explode(':', $time_sheet_data[0]['total_hours']);
+$total_hours_ytd = (int)$hours + ((int)$minutes / 60); // Ensure minutes are treated as integers
+$total_c = $total_hours_ytd * $employee_name[0]['hrate'];
+$total_c = round($total_c, 2);
+                                    ?>
                                  <input type="hidden" id="extra_hour" name="extra_hour" value="<?php echo $time_sheet_data[0]['total_hours']; ?>" />
                                  <input type="hidden" id="extra_rate" name="extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
-                                 <input type="hidden" id="extra_thisrate" name="extra_thisrate" value="<?php echo ($time_sheet_data[0]['total_hours']  * $employee_name[0]['hrate']); ?>" />
+                                 <input type="hidden" id="extra_thisrate" name="extra_thisrate" value="<?php echo ($total_c); ?>" />
                                  <input type="hidden" id="extra_rate" name="extra_rate" value="<?php echo  $employee_name[0]['hrate']; ?>" />
-                                 <input type="hidden" id="extra_thisrate" name="extra_thisrate" value="<?php echo ($time_sheet_data[0]['total_hours']  * $employee_name[0]['hrate']); ?>" />
+                                 <input type="hidden" id="extra_thisrate" name="extra_thisrate" value="<?php echo ($total_c); ?>" />
                                 <?php } ?>
                                 </tfoot>
 
@@ -1332,19 +1413,30 @@ $(".hasTimepicker").prop("readonly", false);
    $(".hasTimepicker").prop("readonly", true); 
     }
 });
-$(document).on('click','.delete_day',function(){
-$(this).closest('tr').remove();
- var total_net=0;
- $('.table').each(function() {
-    $(this).find('.timeSum').each(function() {
-        var precio = $(this).val();
-        if (!isNaN(precio) && precio.length !== 0) {
-          total_net += parseFloat(precio);
-        }
-      });
-  });
-  $('#total_net').val(total_net.toFixed(2)).trigger('change');
-  var firstDate = $('.date input').first().val(); 
+$(document).on('click', '.delete_day', function() {
+    $(this).closest('tr').remove();
+
+    // Recalculate the total net after deleting a row
+    var total_netH = 0;
+    var total_netM = 0;
+
+    $('.table').each(function() {
+        $(this).find('.timeSum').each(function() {
+            var precio = $(this).val();
+            if (!isNaN(precio) && precio.length !== 0) {
+                var [hours, minutes] = precio.split('.').map(parseFloat);
+                total_netH += hours;
+                total_netM += minutes;
+            }
+        });
+    });
+
+    // Convert total hours and minutes to the correct format
+    var timeConversion = convertToTime(total_netH, total_netM);
+    $('#total_net').val(timeConversion).trigger('change');
+
+    // Update the date range if necessary
+    var firstDate = $('.date input').first().val(); 
     var lastDate = $('.date input').last().val(); 
     function convertDateFormat(dateStr) {
         const [day, month, year] = dateStr.split('/');
@@ -1352,7 +1444,7 @@ $(this).closest('tr').remove();
     }
     var firstDateMDY = convertDateFormat(firstDate);
     var lastDateMDY = convertDateFormat(lastDate);
-  $('#reportrange').val(firstDateMDY + ' - ' + lastDateMDY);
+    $('#reportrange').val(firstDateMDY + ' - ' + lastDateMDY);
 });
 function convertToTime(hr,min) {
     let hours = Math.floor(min / 60);
