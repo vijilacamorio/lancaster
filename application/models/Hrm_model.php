@@ -53,7 +53,7 @@ public function state_tax_list_living()
 
 
 
-public function state_summary_employee($emp_name = null, $tax_choice = null, $selectState = null, $date = null, $taxType = null)
+public function state_summary_employee($emp_name = 'All', $taxChoice = null, $date = null)
 {
     $user_id = $this->session->userdata('user_id');
     
@@ -63,38 +63,32 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
     $this->db->join('employee_history c', 'c.id = b.templ_name');
     $this->db->join('tax_history_employer d', 'd.time_sheet_id = a.timesheet_id', 'left');
     $this->db->where("TRIM(d.tax_type) != 'local_tax'");
-    if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("((a.start BETWEEN '$dates[0]' AND '$dates[1]') OR (a.end BETWEEN '$dates[0]' AND '$dates[1]' AND a.end <= '$dates[1]'))");
-    }
 
-    if ($taxType !== '') {
-        $trimmed_taxType = trim($taxType);
-        $this->db->like("TRIM(d.tax)", $trimmed_taxType, 'none');
-    }
-
-    if ($tax_choice == 'All') {
-        $this->db->where("(TRIM(d.tax_type) = 'state_tax' OR TRIM(d.tax_type) = 'living_state_tax')");
-    } elseif ($tax_choice == 'state_tax') {
-        $this->db->where("TRIM(d.tax_type)", 'state_tax');
-    } elseif ($tax_choice == 'living_state_tax') {
-        $this->db->where("TRIM(d.tax_type)", 'living_state_tax');
-    }
-
-    if ($selectState !== '') {
-        $trimmed_selectState = trim($selectState);
-        $this->db->where("TRIM(d.code)", $trimmed_selectState);
-    }
-
-      if ($emp_name !== 'All') {
+    if ($emp_name !== 'All') {
         $trimmed_emp_name = trim($emp_name);
-        $this->db->like("CONCAT(TRIM(c.first_name), ' ', TRIM(c.middle_name), ' ', TRIM(c.last_name))", $trimmed_emp_name, 'both', false);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($taxChoice == 'All') {
+        $this->db->where("(TRIM(d.tax_type) = 'state_tax' OR TRIM(d.tax_type) = 'living_state_tax')");
+    } elseif (trim($taxChoice) == 'state_tax') {
+        $this->db->where("TRIM(d.tax_type)", 'state_tax');
+    } elseif (trim($taxChoice) == 'living_state_tax') {
+        $this->db->where("TRIM(d.tax_type)", 'living_state_tax');
     }
 
     $this->db->where('a.create_by', $user_id);
     $this->db->group_by('a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.amount'); 
 
     $query = $this->db->get();
+    // echo $this->db->last_query(); die();
     $resultRows = $query->result_array();
     return $resultRows;
     
@@ -201,8 +195,139 @@ public function get_f1099nec_info($selectedValue)
             return [];
             }
         }
+
+
+// State Summary Employee -Madhu
+public function statesummaryemployee($limit, $start, $orderField, $orderDirection, $search, $tax_choice = null, $selectState = null, $emp_name = 'All', $date = null, $taxChoice = null)
+{
+    $user_id = $this->session->userdata('user_id');
+    
+    $this->db->select('DISTINCT a.timesheet_id, a.cheque_date, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax, (d.amount) as total_amount', false);
+    $this->db->from('timesheet_info a');
+    $this->db->join('info_payslip b', 'b.templ_name = a.templ_name');
+    $this->db->join('employee_history c', 'c.id = b.templ_name');
+    $this->db->join('tax_history_employer d', 'd.time_sheet_id = a.timesheet_id', 'left');
+    $this->db->where("TRIM(d.tax_type) != 'local_tax'");
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
+    if ($taxChoice == 'All') {
+        $this->db->where("(TRIM(d.tax_type) = 'state_tax' OR TRIM(d.tax_type) = 'living_state_tax')");
+    } elseif (trim($taxChoice) == 'state_tax') {
+        $this->db->where("TRIM(d.tax_type)", 'state_tax');
+    } elseif (trim($taxChoice) == 'living_state_tax') {
+        $this->db->where("TRIM(d.tax_type)", 'living_state_tax');
+    }
+
+    $this->db->where('a.create_by', $user_id);
+    $this->db->group_by('a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.amount'); 
+    $this->db->limit($limit, $start);
+    $this->db->order_by($orderField, $orderDirection);
+
+    $query = $this->db->get();
+    // echo $this->db->last_query(); die();
+    $resultRows = $query->result_array();
+    return $resultRows;
+    
+}
+
+// Old State Summary Employer -Madhu
+public function statesummaryemployer($date = null, $emp_name = 'All')
+{
+    $user_id = $this->session->userdata('user_id');
+   $this->db->select('DISTINCT a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.weekly,d.biweekly,d.monthly, (d.amount) as total_amount', false);
+    $this->db->from('timesheet_info a');
+    $this->db->join('info_payslip b', 'b.templ_name = a.templ_name');
+    $this->db->join('employee_history c', 'c.id = b.templ_name');
+    $this->db->join('tax_history d', 'd.time_sheet_id = a.timesheet_id', 'left');
+  
+   $this->db->where("TRIM(d.tax_type) != 'local_tax'");
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+  
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $this->db->like("CONCAT(TRIM(c.first_name), ' ', TRIM(c.middle_name), ' ', TRIM(c.last_name))", $trimmed_emp_name, 'both', false);
+    }
+    
+
+    $this->db->where('a.create_by', $user_id);
+    $this->db->group_by('a.timesheet_id,d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type,d.weekly,d.biweekly,d.monthly, d.tax,d.amount');
+
+    if ($orderField) {
+        $this->db->order_by($orderField, $orderDirection);
+    }
+    if ($limit) {
+        $this->db->limit($limit, $start);
+    }
+
+    $query = $this->db->get();
+    $resultRows = $query->result_array();
+    return $resultRows;
+}
+
+
+// Total Count in State Overall Tax
+public function getTotalStateOveralltax($search, $date, $emp_name = 'All')
+{
+    $user_id = $this->session->userdata("user_id");
+
+    $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
+    
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
+    $subquery .= ")";
+
+    $this->db->select('first_name, middle_name, last_name');
+    $this->db->from('employee_history');
+    $this->db->where("create_by", $user_id);
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->or_like("first_name", $search);
+        $this->db->or_like("last_name", $search);
+        $this->db->or_like("middle_name", $search);
+        $this->db->or_like("employee_tax", $search);
+        $this->db->group_end();
+    }
+
+    $this->db->where("create_by", $user_id);
+
+    $query = $this->db->get();
+
+    if ($query === false) {
+        return false;
+    }
+
+    return $query->num_rows();
+}
+
         
-public function state_summary_employer($emp_name = null, $tax_choice = null, $selectState = null, $date = null, $taxType = null)
+public function state_summary_employer($tax_choice = null, $selectState = null, $date = null, $emp_name = 'All', $taxType = null)
 {
     $user_id = $this->session->userdata('user_id');
    $this->db->select('DISTINCT a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.weekly,d.biweekly,d.monthly, (d.amount) as total_amount', false);
@@ -213,8 +338,10 @@ public function state_summary_employer($emp_name = null, $tax_choice = null, $se
   
    $this->db->where("TRIM(d.tax_type) != 'local_tax'");
     if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("(a.start BETWEEN '$dates[0]' AND '$dates[1]' OR a.end BETWEEN '$dates[0]' AND '$dates[1]' AND a.end <= '$dates[1]')");
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("a.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
   
     if ($taxType !== '') {
@@ -231,11 +358,8 @@ public function state_summary_employer($emp_name = null, $tax_choice = null, $se
         $this->db->where("TRIM(d.tax_type)", 'living_state_tax');
     }
 
-    if ($selectState !== '') {
-        $trimmed_selectState = trim($selectState);
-        $this->db->where("TRIM(d.code)", $trimmed_selectState);
-    }
-       if ($emp_name !== 'All') {
+    
+    if ($emp_name !== 'All') {
         $trimmed_emp_name = trim($emp_name);
         $this->db->like("CONCAT(TRIM(c.first_name), ' ', TRIM(c.middle_name), ' ', TRIM(c.last_name))", $trimmed_emp_name, 'both', false);
     }
@@ -246,12 +370,14 @@ public function state_summary_employer($emp_name = null, $tax_choice = null, $se
 
     $query = $this->db->get();
     
- //  echo $this->db->last_query();
+  // echo $this->db->last_query(); die;
     $resultRows = $query->result_array();
      // print_r($resultRows);die();
     return $resultRows;
 }
-public function state_tax_report($employee_name=null,$url,$date=null)
+
+// Old State Tax Report - Madhu
+public function statetaxreport($employee_name=null,$url,$date=null)
 {
     $user_id = $this->session->userdata('user_id');
     $this->db->select('a.tax,a.tax_type,a.time_sheet_id,d.month,a.amount,a.weekly,a.biweekly,a.monthly,c.*');
@@ -260,9 +386,11 @@ public function state_tax_report($employee_name=null,$url,$date=null)
     $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
     $this->db->where('a.tax_type', 'state_tax'); $this->db->order_by('a.tax', 'ASC');
     
-     if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("((d.start BETWEEN '$dates[0]' AND '$dates[1]') OR (d.end BETWEEN '$dates[0]' AND '$dates[1]' AND d.end <= '$dates[1]'))");
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
 
   if ($employee_name !== 'All' && $employee_name !== null) {
@@ -272,13 +400,120 @@ public function state_tax_report($employee_name=null,$url,$date=null)
         $this->db->or_like("TRIM(CONCAT_WS(' ', c.first_name, c.last_name))", $trimmed_emp_name);
         $this->db->group_end();
     }
-  $this->db->where('a.created_by', $this->session->userdata('user_id'));
+    $this->db->where('a.created_by', $this->session->userdata('user_id'));
     $this->db->where('a.tax', $url);
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+// New State Tax Report - Madhu
+public function state_tax_report($limit, $start, $orderField, $orderDirection, $search, $taxname, $date, $employee_name='All')
+{
+    $user_id = $this->session->userdata('user_id');
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
+    }
+
+    if ($employee_name !== 'All' && $employee_name !== null) {
+        $trimmed_emp_name = trim($employee_name);
+        $this->db->group_start();
+        $this->db->like("TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name))", $trimmed_emp_name);
+        $this->db->or_like("TRIM(CONCAT_WS(' ', c.first_name, c.last_name))", $trimmed_emp_name);
+        $this->db->group_end();
+    }
+
+    $this->db->select('a.tax, a.tax_type, a.time_sheet_id, d.month, d.cheque_date, a.amount, a.weekly, a.biweekly, a.monthly, c.*');
+    $this->db->from('tax_history a');
+    $this->db->join('employee_history c', 'c.id = a.employee_id');
+    $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
+    $this->db->join('info_payslip b', 'a.time_sheet_id = b.timesheet_id', 'left'); 
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->like("d.timesheet_id", $search);
+        $this->db->or_like("c.first_name", $search);
+        $this->db->or_like("c.last_name", $search);
+        $this->db->or_like("c.middle_name", $search);
+        $this->db->or_like("c.employee_tax", $search);
+        $this->db->like("d.month", $search);
+        $this->db->group_end();
+    }
+
+    if ($taxname) {
+        $this->db->where('a.tax', $taxname);
+    }
+
+    $this->db->where('a.tax_type', 'state_tax');
+    $this->db->where('b.create_by', $user_id); 
+    $this->db->distinct();
+    $this->db->limit($limit, $start);
+    $this->db->order_by($orderField, $orderDirection);
 
     $query = $this->db->get();
 
+    if (!$query) {
+        $error = $this->db->error(); 
+        echo 'Query failed: ' . $error['message']; 
+        exit;
+    }
+
     return $query->result_array();
 }
+
+// Total Income Tax - Madhu
+public function getTotalIncomeTax($search, $date, $employee_name = 'All')
+{
+    $user_id = $this->session->userdata("user_id");
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
+    }
+
+    if ($employee_name !== 'All' && $employee_name !== null) {
+        $trimmed_emp_name = trim($employee_name);
+        $this->db->group_start();
+        $this->db->like("TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name))", $trimmed_emp_name);
+        $this->db->or_like("TRIM(CONCAT_WS(' ', c.first_name, c.last_name))", $trimmed_emp_name);
+        $this->db->group_end();
+    }
+
+    $this->db->select('a.tax, a.tax_type, a.time_sheet_id, d.month, a.amount, a.weekly, a.biweekly, a.monthly, c.*');
+    $this->db->from('tax_history a');
+    $this->db->join('employee_history c', 'c.id = a.employee_id');
+    $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
+    $this->db->join('info_payslip b', 'a.time_sheet_id = b.timesheet_id', 'left'); 
+    $this->db->where('a.tax_type', 'state_tax');
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->like("b.timesheet_id", $search);
+        $this->db->or_like("c.first_name", $search);
+        $this->db->or_like("c.last_name", $search);
+        $this->db->or_like("c.middle_name", $search);
+        $this->db->or_like("c.employee_tax", $search);
+        $this->db->group_end();
+    }
+
+    $this->db->where('b.create_by', $user_id); 
+
+    $query = $this->db->get();
+
+    if ($query === false) {
+        return false;
+    }
+
+    return $query->num_rows();
+}
+
+
+
 public function other_tax_report(){
     $user_id = $this->session->userdata('user_id');
     $this->db->select('a.tax,a.tax_type,a.time_sheet_id,d.month,a.amount,c.first_name,c.last_name');
@@ -422,22 +657,20 @@ public function living_state_tax_report_search($tax_name=null,$emp_name=null,$da
     $this->db->join('employee_history c', 'c.id = a.employee_id');
     $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
   
-      $this->db->where('a.tax_type', 'living_state_tax');
+    $this->db->where('a.tax_type', 'living_state_tax');
     $this->db->where('a.created_by', $this->session->userdata('user_id'));
     $this->db->where('a.tax', $tax_name); $this->db->order_by('tax', 'ASC');
-if ($date) {
-        $dates = explode(' - ', $date);
-        $start_date = date('m/d/Y', strtotime($dates[0]));
-        $end_date = date('m/d/Y', strtotime($dates[1]));
-        $this->db->group_start();
-        $this->db->where("(d.start) BETWEEN ('$start_date') AND ('$end_date')");
-        $this->db->or_where("(d.end) BETWEEN ('$start_date') AND ('$end_date')");
-        $this->db->where("(d.end) <= ('$end_date')");
-        $this->db->group_end();
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
 
+
     if ($emp_name !== 'All') {
-        $trimmed_emp_name = trim($emp_name); // Trim the provided employee name
+        $trimmed_emp_name = trim($emp_name); 
         $this->db->like("TRIM(CONCAT(c.first_name, ' ', c.last_name))", $trimmed_emp_name);
     }
     $query = $this->db->get();
@@ -542,9 +775,11 @@ public function living_state_tax_report($employee_name=null,$url, $date = null)
     $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
     $this->db->where('a.tax_type', 'living_state_tax');
     $this->db->order_by('a.tax', 'ASC');
-     if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("((d.start BETWEEN '$dates[0]' AND '$dates[1]') OR (d.end BETWEEN '$dates[0]' AND '$dates[1]' AND d.end <= '$dates[1]'))");
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
    if ($employee_name !== 'All') {
         $trimmed_emp_name = trim($employee_name);
@@ -554,7 +789,6 @@ public function living_state_tax_report($employee_name=null,$url, $date = null)
     $this->db->where('a.tax', $url);
 
     $query = $this->db->get();
-    // echo $this->db->last_query(); die();// Uncomment if you need to debug the query
     return $query->result_array();
 }
 
@@ -572,10 +806,14 @@ public function employer_state_tax_report($employee_name=null,$url,$date=null )
     $this->db->join('employee_history c', 'c.id = a.employee_id');
     $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
     $this->db->where('a.tax_type', 'state_tax');$this->db->order_by('a.tax', 'ASC');
-     if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("((d.start BETWEEN '$dates[0]' AND '$dates[1]') OR (d.end BETWEEN '$dates[0]' AND '$dates[1]' AND d.end <= '$dates[1]'))");
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
+
     if ($emp_name !== 'All') {
         $trimmed_emp_name = trim($emp_name);
         $this->db->like("CONCAT(TRIM(c.first_name), ' ', TRIM(c.middle_name), ' ', TRIM(c.last_name))", $trimmed_emp_name, 'both', false);
@@ -635,12 +873,15 @@ public function employer_living_state_tax_report($employee_name=null,$url,$date=
     $this->db->join('employee_history c', 'c.id = a.employee_id');
     $this->db->join('timesheet_info d', 'a.time_sheet_id = d.timesheet_id');
     $this->db->where('a.tax_type', 'living_state_tax');$this->db->order_by('a.tax', 'ASC');
-      if ($date) {
-        $dates = explode(' - ', $date);
-        $this->db->where("((d.start BETWEEN '$dates[0]' AND '$dates[1]') OR (d.end BETWEEN '$dates[0]' AND '$dates[1]' AND d.end <= '$dates[1]'))");
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $this->db->where("d.cheque_date BETWEEN '$start_date' AND '$end_date'");
     }
     
-        if ($employee_name !== 'All') {
+    if ($employee_name !== 'All') {
         $trimmed_emp_name = trim($employee_name);
         $this->db->like("CONCAT(TRIM(c.first_name), ' ', TRIM(c.middle_name), ' ', TRIM(c.last_name))", $trimmed_emp_name, 'both', false);
     }
@@ -863,6 +1104,7 @@ $query = $this->db->get();
     return false;
 }
 
+// Overall State List - Madhu
 public function stateTaxlist()
 {
     $user_id = $this->session->userdata('user_id');
@@ -1006,22 +1248,32 @@ return $resultRows;
 }
 
 
-
-public function social_tax_sumary()
+// Old Social Tax Summary
+public function social_tax_sumary($date = null, $emp_name = 'All')
 {
     $user_id = $this->session->userdata('user_id');
-    $this->db->select('b.*,c.*,b.timesheet_id');
+    $this->db->select('b.*,c.*,b.timesheet_id,d.*');
     $this->db->from('info_payslip b');
     $this->db->join('employee_history c', 'c.id = b.templ_name');
     $this->db->join('timesheet_info d', 'd.templ_name = c.id');
     $this->db->where('d.uneditable', 1);
     $this->db->where('b.create_by', $user_id);
-    $this->db->group_by('b.timesheet_id'); // Group by both employee_id and timesheet_id
+    $this->db->group_by('b.timesheet_id'); 
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (d.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
     $query = $this->db->get();
-  // echo $this->db->last_query();
+    echo $this->db->last_query(); die();
     if ($query->num_rows() > 0) {
         $result = $query->result_array();
-        // Sum taxes based on employee_id
         $sums = array();
         foreach ($result as $row) {
             $employee_id = $row['templ_name'];
@@ -1038,17 +1290,141 @@ public function social_tax_sumary()
                     'total_f_tax' => 0
                 );
             }
-            // Sum taxes for each employee
             $sums[$employee_id]['s_stax_sum'] += $row['s_tax'];
             $sums[$employee_id]['m_mtax_sum'] += $row['m_tax'];
             $sums[$employee_id]['u_utax_sum'] += $row['u_tax'];
             $sums[$employee_id]['f_ftax_sum'] += $row['f_tax'];
         }
-       // print_r($sums);die();
-        return array_values($sums); //die();
+        return array_values($sums);
     }
     return false;
 }
+
+// New Federal Overall Summary - Madhu
+public function getPaginatedSocialTaxSummary($limit, $offset, $orderField, $orderDirection, $search, $date = null, $emp_name = 'All')
+{
+    $user_id = $this->session->userdata("user_id");
+
+    $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
+    
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
+    $subquery .= ")";
+
+    $this->db->select('b.timesheet_id, b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax, b.templ_name, c.*, a.*');
+    $this->db->from('info_payslip b');
+    $this->db->join('employee_history c', 'c.id = b.templ_name');
+    $this->db->join('timesheet_info a', 'a.timesheet_id = b.timesheet_id');
+    $this->db->where("b.timesheet_id IN $subquery", NULL, FALSE);
+    $this->db->where("b.create_by", $user_id);
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->or_like("c.first_name", $search);
+        $this->db->or_like("c.last_name", $search);
+        $this->db->or_like("c.middle_name", $search);
+        $this->db->or_like("c.employee_tax", $search);
+        $this->db->group_end();
+    }
+
+    $this->db->limit($limit, $offset);
+    $this->db->order_by($orderField, $orderDirection);
+
+    $query = $this->db->get();
+
+    // echo $this->db->last_query(); die();
+
+    if ($query === false) {
+        return false;
+    }
+
+    $result = $query->result_array();
+    if (count($result) > 0) {
+        $sums = array();
+        foreach ($result as $row) { 
+            $employee_id = $row['templ_name'];
+
+            if (!isset($sums[$employee_id])) {
+                $sums[$employee_id] = array(
+                    'employee_id' => $employee_id,
+                    'first_name' => $row['first_name'],
+                    'middle_name' => $row['middle_name'],
+                    'last_name' => $row['last_name'],
+                    'employee_tax' => $row['employee_tax'],
+                    'cheque_date' => $row['cheque_date'],
+                    'total_s_tax' => 0,
+                    'total_m_tax' => 0,
+                    'total_u_tax' => 0,
+                    'total_f_tax' => 0
+                );
+            }
+            
+            $sums[$employee_id]['total_s_tax'] += $row['s_stax'];
+            $sums[$employee_id]['total_m_tax'] += $row['m_mtax'];
+            $sums[$employee_id]['total_u_tax'] += $row['u_utax'];
+            $sums[$employee_id]['total_f_tax'] += $row['f_ftax'];
+        }
+        return array_values($sums);
+    }
+
+    return false;
+}
+
+// Total Federal Overall Tax - Madhu
+public function getSocialOveralltax($search, $date, $emp_name = 'All')
+{
+    $user_id = $this->session->userdata("user_id");
+
+    $subquery = "(SELECT DISTINCT b.timesheet_id FROM info_payslip b JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id WHERE b.create_by = '$user_id'";
+    
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
+    $subquery .= ")";
+
+    $this->db->select('first_name, middle_name, last_name');
+    $this->db->from('employee_history');
+    $this->db->where("create_by", $user_id);
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->or_like("first_name", $search);
+        $this->db->or_like("last_name", $search);
+        $this->db->or_like("middle_name", $search);
+        $this->db->or_like("employee_tax", $search);
+        $this->db->group_end();
+    }
+
+    $this->db->where("create_by", $user_id);
+
+    $query = $this->db->get();
+
+    if ($query === false) {
+        return false;
+    }
+
+    return $query->num_rows();
+}
+
 
 public function social_tax()
 {
@@ -1098,25 +1474,38 @@ $query = $this->db->select('(b.total_amount) as tamount,a.timesheet_id')
     }
     return false;
 }
-public function social_tax_employer()
+
+// Federal Overall Social Tax - Madhu
+public function social_tax_employer($date = null, $emp_name = null)
 {
     $user_id = $this->session->userdata('user_id');
-    $this->db->select('b.*,c.*,b.time_sheet_id');
+    $this->db->select('b.*,c.*,b.time_sheet_id, d.*');
     $this->db->from('tax_history_employer b');
     $this->db->join('employee_history c', 'c.id = b.employee_id');
     $this->db->join('timesheet_info d', 'd.templ_name = c.id');
     $this->db->where('d.uneditable', 1);
     $this->db->where('b.created_by', $user_id);
-    $this->db->group_by('b.time_sheet_id'); // Group by both employee_id and timesheet_id
+    $this->db->group_by('b.time_sheet_id');
+
+    if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];
+        $subquery .= " AND (d.cheque_date BETWEEN '$start_date' AND '$end_date')";
+    }
+
+    if ($emp_name !== 'All') {
+        $trimmed_emp_name = trim($emp_name);
+        $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
+    }
+
     $query = $this->db->get();
-   // echo $this->db->last_query();
+
     if ($query->num_rows() > 0) {
         $result = $query->result_array();
-        // Sum taxes based on employee_id
         $sums = array();
         foreach ($result as $row) {
             $employee_id = $row['employee_id'];
-           // echo $employee_id;
             if (!isset($sums[$employee_id])) {
                 $sums[$employee_id] = array(
                     'employee_id' => $employee_id,
@@ -1135,11 +1524,11 @@ public function social_tax_employer()
             $sums[$employee_id]['u_utax_sum_er'] += $row['u_tax'];
             $sums[$employee_id]['f_ftax_sum_er'] += $row['f_tax'];
         }
-       // print_r($sums);die();
-        return array_values($sums); //die();
+        return array_values($sums);
+        return false;
     }
-    return false;
 }
+
 public function employe($emp_name = null, $date = null)
 {
     $user_id = $this->session->userdata('user_id');
@@ -1168,7 +1557,6 @@ public function employe($emp_name = null, $date = null)
     
     $subquery .= ")";
     
-    // Main query using the subquery result
     $this->db->select('a.month, b.timesheet_id, c.employee_tax, b.templ_name, c.first_name, c.middle_name, c.last_name, 
         b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax');
     
@@ -1179,9 +1567,6 @@ public function employe($emp_name = null, $date = null)
     $this->db->order_by('b.timesheet_id', 'ASC');
     
     $query = $this->db->get();
-    
-    // Debugging: Display the generated SQL query
-    // echo $this->db->last_query();
     
     return $query->result_array();
 }

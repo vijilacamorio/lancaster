@@ -8,12 +8,12 @@
       </div>
       <div class="header-title">
          <div class="logo-holder logo-9">
-         <h1><?php echo ('Unemployment Tax'); ?></h1>
+         <h1><?php echo ('State Overall Summary'); ?></h1>
          </div>
             <ol class="breadcrumb" style=" border: 3px solid #d7d4d6;" >
                <li><a href="<?php echo base_url()?>"><i class="pe-7s-home"></i> <?php echo display('home') ?></a></li>
                <li><a href="#"><?php echo display('report') ?></a></li>
-               <li class="active" style="color:orange"><?php echo 'Unemployment Tax';?></li>
+               <li class="active" style="color:orange"><?php echo 'State Overall Summary';?></li>
             <div class="load-wrapp">
                <div class="load-10">
                   <div class="bar"></div>
@@ -75,20 +75,21 @@
                             <tr  class="btnclr">
                                 <th rowspan="2" class="1 value" data-col="1" style="height: 45.0114px; text-align:center; width: 300px;"><?php echo 'S.NO'?></th>
                                 <th rowspan="2" class="2 value" data-col="2" style="text-align:center; width: 300px;"><?php echo 'Employee Name'?></th>
-                                 <th rowspan="2" class="2 value" data-col="2" style="text-align:center; width: 300px;"><?php echo 'Employee Tax'?></th>
-                                <th rowspan="2" class="3 value" data-col="3" style="text-align:center; width: 300px;"><?php echo 'TimeSheet ID'?></th>
-                                <th rowspan="2" class="4 value" data-col="4" style="text-align:center; width: 300px;"><?php echo 'Pay Period'?></th>
                                 <th rowspan="2" class="4 value" data-col="4" style="text-align:center; width: 300px;"><?php echo 'Cheque Date'?></th>
-                                <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"><?php echo ('Unemployment Tax')?></th>
+                                <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"><?php echo ('Medicare Tax')?></th>
                             </tr>
                             <tr class="btnclr">
-                               <th class="4 value" data-col="4" style="text-align:center;width: 200px;"><?php echo ('Employee Contribution')?></th>
-                                <th class="4 value" data-col="4" style="text-align:center;width: 200px;"><?php echo ('Employer Contribution')?></th>
+                                <th class="4 value" data-col="4" style="text-align:center;width: 200px;">
+                                    <?php echo ('Employee Contribution') ?>
+                                </th>
+                                <th class="4 value" data-col="4" style="text-align:center;width: 200px;">
+                                    <?php echo ('Employer Contribution') ?>
+                                </th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="btnclr">
-                                <th colspan="6" style="text-align: end;" >Total </th>
+                                <th colspan="3" style="text-align: end;" >Total </th>
                                 <th class="text-center"></th>
                                 <th class="text-center"></th>
                             </tr>
@@ -126,7 +127,7 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
             [10, 25, 50, 100]
         ],
         "ajax": {
-            "url": "<?php echo base_url('Chrm/unemploymenttaxIndexData'); ?>",
+            "url": "<?php echo base_url('Chrm/StateOverTaxreport'); ?>",
             "type": "POST",
             "data": function(d) {
                 d['<?php echo $this->security->get_csrf_token_name(); ?>'] =
@@ -143,16 +144,13 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
          "columns": [
          { "data": "table_id" },
          { "data": "first_name" },
-         { "data": "employee_tax" },
-         { "data": "timesheet_id" },
-         { "data": "month" },
          { "data": "cheque_date" },
-         { "data": "u_utax" },
-         { "data": "tu_utax" },
+         { "data": "timesheet_id" },
+         { "data": "cheque_date" },
          ],
         "columnDefs": [{
             "orderable": false,
-            "targets": [0, 7],
+            "targets": [0, 4],
             searchBuilder: {
                 defaultCondition: '='
             },
@@ -192,10 +190,10 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
                 });
                 return total;
             }
-            var employeeContributionTotal = calculateTotal(6);
-            var employerContributionTotal = calculateTotal(7);
-            $(api.column(6).footer()).html('$' + employeeContributionTotal.toFixed(2));
-            $(api.column(7).footer()).html('$' + employerContributionTotal.toFixed(2));
+            var employeeContributionTotal = calculateTotal(3);
+            var employerContributionTotal = calculateTotal(4);
+            $(api.column(3).footer()).html('$' + employeeContributionTotal.toFixed(2));
+            $(api.column(4).footer()).html('$' + employerContributionTotal.toFixed(2));
         },
         "stateSaveCallback": function(settings, data) {
             localStorage.setItem('quotation', JSON.stringify(data));
@@ -239,7 +237,7 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
                     $(win.document.body)
                         .css('font-size', '10pt')
                         .prepend(
-                            '<div style="text-align:center;"><h3>Manage Quotation</h3></div>'
+                            '<div style="text-align:center;"><h3>Manage State Overall Summary</h3></div>'
                         )
                         .append(
                             '<div style="text-align:center;"><h4>amoriotech.com</h4></div>'
