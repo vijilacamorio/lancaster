@@ -112,14 +112,14 @@
    }
 </style>
 <div class="content-wrapper">
-   <section class="content-header">
+   <section class="content-header" style="height:70px;">
       <div class="header-icon">
          <figure class="one">
          <img src="<?php echo base_url()  ?>asset/images/salesreport.png"  class="headshotphoto" style="height:50px;" />
       </div>
       <div class="header-title">
          <div class="logo-holder logo-9">
-            <h1><?php echo 'State Overall Summary' ?></h1>
+            <h1><?php echo 'Overall Summary' ?></h1>
          </div>
         
          <ol class="breadcrumb"   style=" border: 3px solid #d7d4d6;"   >
@@ -207,6 +207,16 @@
                                  <?php } ?>
                               </select>
                             </td>
+                            <td class="search_dropdown" style="color: black;">
+                              <span><?php echo 'Tax Type'; ?></span>
+                              <select id="taxtyp-filter" name="taxtyp" class="form-control">
+                                 <option value="All">All</option>
+                                 <option value="federal">Federal Tax</option>
+                                 <option value="working_state">Working State Tax</option>
+                                  <option value="living_state">Living State Tax</option>
+                               
+                              </select>
+                           </td>
    <td class="search_dropdown" style="color: black;">
                               <input type="hidden" class="txt_csrfname" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
                               <span><?php echo 'Employee'; ?></span>
@@ -265,8 +275,8 @@
           
 <div id="tablesContainer" style='padding-left:20px;padding-right:20px;'>
  <div class="panel panel-bd lobidrag">
-     <p style='font-weight:bold;text-align:center;font-size: xx-large;'><label >FEDERAL TAX</label></p>
-      <table class="table table-bordered" cellspacing="0" width="100%" id="federal_summary">
+     <p class="federal" style='font-weight:bold;text-align:center;font-size: xx-large;'><label >FEDERAL TAX</label></p>
+      <table class="federal table table-bordered" cellspacing="0" width="100%" id="federal_summary">
                            <thead class="sortableTable">
                               <tr class="sortableTable__header btnclr">
                                  <th rowspan="2" class="1 value" data-col="1" style="height: 45.0114px; text-align:center; "> <?php echo 'S.NO'?> </th>
@@ -358,15 +368,15 @@
                               </tr>
                            </tfoot>
                         </table>
-  <p style='font-weight:bold;text-align:center;font-size: xx-large;'><label >WORKING STATE TAX </label></p>
-    <table class="table table-bordered" cellspacing="0" width="100%" id="StateTaxTable">
+  <p class="work_state" style='font-weight:bold;text-align:center;font-size: xx-large;'><label >WORKING STATE TAX </label></p>
+    <table class="work_state table table-bordered" cellspacing="0" width="100%" id="StateTaxTable">
         <thead></thead>
         <tbody></tbody>
         <tfoot></tfoot>
     </table>
     
-    <p style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>LIVING STATE TAX </label></p>
-    <table class="table table-bordered" cellspacing="0" width="100%" id="LivingStateTaxTable">
+    <p class="living_state" style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>LIVING STATE TAX </label></p>
+    <table class="living_state table table-bordered" cellspacing="0" width="100%" id="LivingStateTaxTable">
         <thead></thead>
         <tbody></tbody>
         <tfoot></tfoot>
@@ -496,10 +506,14 @@ removeDuplicates();
 
 
 $(document).ready(function () {
+  
+     $('.federal').hide();
+       $('.work_state').hide();
+         $('.living_state').hide();
     $('#fetch_tax').submit(function (event) {
         event.preventDefault();
         var formData = $(this).serialize();
-
+   var taxtpe=$('#taxtyp-filter').val();
         $.ajax({
             type: "POST",
             dataType: "json",
@@ -508,7 +522,27 @@ $(document).ready(function () {
             success: function (response) {
                 $('#tablesContainer').css('display','block');
                 populateTables(response);
-                federal_summary();
+
+                if(taxtpe == 'federal'){
+                    $('.federal').show();
+                          $('.work_state').hide();
+         $('.living_state').hide();
+                    federal_summary();
+                }else if(taxtpe == 'working_state')
+                {
+                 $('.work_state').show();
+         $('.living_state').hide();
+          $('.federal').hide();
+                }
+                else if( taxtpe == 'living_state'){
+                   $('.work_state').hide();
+                    $('.federal').hide();
+         $('.living_state').show();   
+                }else{
+                   $('.work_state').show();
+                    $('.federal').show();
+         $('.living_state').show();  
+                }
             },
             error: function (xhr, status, error) {
                 console.error("Error:", xhr.responseText);
