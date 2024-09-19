@@ -321,7 +321,7 @@ $fs=strtoupper($infoemployee[0]['first_name']);
         <?php endif; ?>
         <td id="total_period"><?php echo round($above_extra_sum + $sc,2) ; ?></td>
          <td style="display:none;" id="total_period"><?php echo $aboveytd; ?></td>
-        <td><?php echo round($above_eth,2); ?></td>
+        <td><?php echo $above_eth; ?></td>
         <td  id="total_ytd"><?php echo round ($above_ytdeth, 2); ?></td>
         <td style="display:none;" id="total_ytd"><?php echo $sum_above; ?></td>
     </tr>
@@ -419,7 +419,7 @@ $fs=strtoupper($infoemployee[0]['first_name']);
          <th><?php echo round($sc,2); ?></th>
       <?php endif; ?>
       <th><?php echo round($above_extra_sum + $sc,2); ?></th>
-      <th><?php echo round($above_eth,2); ?></th>
+      <th><?php echo ((float)$above_eth); ?></th>
      <th>
           <?php if($partner){ echo $partner; }             
           else if($above_ytdeth >0)            
@@ -438,7 +438,23 @@ $fs=strtoupper($infoemployee[0]['first_name']);
          <th>  </th>
       <?php endif; ?>
       <th><?php echo $above_extra_sum + $extra_thisrate + $sc; ?></th>
-      <th><?php echo round($above_eth,3) +$extra_eth ; ?></th>
+      <th><?php 
+      list($hours1, $minutes1) = explode(':', $above_eth);
+$totalMinutes1 = ($hours1 * 60) + $minutes1;
+
+list($hours2, $minutes2) = explode(':', $extra_eth);
+$totalMinutes2 = ($hours2 * 60) + $minutes2;
+
+// Sum the total minutes
+$totalMinutes = $totalMinutes1 + $totalMinutes2;
+
+// Convert back to hours and minutes
+$hours = floor($totalMinutes / 60);
+$minutes = $totalMinutes % 60;
+
+// Format the result as hours:minutes
+$total_time = sprintf('%d:%02d', $hours, $minutes);
+      echo $total_time ; ?></th>
       <th><?php echo round ($above_ytdeth, 3) + $extra_ytdeth ; ?></th>
       </tr>
       <?php } ?>

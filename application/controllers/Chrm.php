@@ -726,7 +726,7 @@ public function generateAgentcheck()
        $this->template->full_admin_html_view($content);
     }
 public function second_pay_slip() {
-          $CI = & get_instance();
+  $CI = & get_instance();
           $CI->load->model('invoice_content');
           $w = & get_instance();
           $w->load->model('Ppurchases');
@@ -871,38 +871,51 @@ $data_timesheet['quarter'] = $quarter;
    $this->db->insert('timesheet_info', $data_timesheet);
    }
   $data['timesheet_data'] = $this->Hrm_model-> timesheet_info_data($data_timesheet['timesheet_id']);
+  $limit_hours = '40:00';
+  list($totalH, $totalM) = explode(':', $total_hours);
+$totalMinutes = ($totalH * 60) + (int)$totalM;
+list($limitH, $limitM) = explode(':', $limit_hours);
+$limitMinutes = ($limitH * 60) + (int)$limitM;
  if($data['timesheet_data'][0]['payroll_type']=='Hourly'){
-if ($total_hours <= 40) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  list($hours, $minutes) = explode(':', $total_hours);
+
+// Convert total hours to decimal hours
+$decimal_hours = $hours + ($minutes / 60);
+
+// Calculate total cost
+$total_cost = $hrate * $decimal_hours;
+if ($total_hours <= $limit_hours) {
+  $final = ($total_cost) + $scValueAmount1;
  } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
  }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiWeekly'){
 if ($total_hours <= 14) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
  } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
  }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-weekly'){
-   $final = ($hrate * $total_hours) + $scValueAmount1;
+   $final = ($total_cost) + $scValueAmount1;
  
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-Monthly'){
 if ($total_hours <= 30) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
  } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
  }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiMonthly'){
 if ($total_hours <= 60) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
  }
 else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
  }
 }else if ($data['timesheet_data'][0]['payroll_type']=='SalesCommission'){
- $final = ($hrate * $total_hours) + $scValueAmount1;
+ $final = ($total_cost) + $scValueAmount1;
 }
- 
+  $final= round($final,2);
+  echo $final;
    $purchase_id_2 = $this->db->select('timesheet_id')->from('timesheet_info')->where('templ_name',$this->input->post('templ_name'))->where('month', $this->input->post('date_range'))->get()->row()->timesheet_id;
     $this->session->set_userdata("timesheet_id_new",$purchase_id_2);
      if($date1){
@@ -2886,6 +2899,7 @@ $data['job_title']='Sales Partner';
           $this->db->insert('timesheet_info_details', $data1);
          }
        }
+      
         $this->session->set_flashdata('message', display('save_successfully'));
        redirect("Chrm/manage_timesheet");
 }
@@ -2990,21 +3004,35 @@ if (isset($data['employee_data']) && !empty($data['employee_data'])) {
   }
 }
 if($data['timesheet_data'][0]['payroll_type']=='Hourly'){
-if ($total_hours <= 40) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+   $limit_hours = '40:00';
+  list($totalH, $totalM) = explode(':', $total_hours);
+$totalMinutes = ($totalH * 60) + (int)$totalM;
+list($limitH, $limitM) = explode(':', $limit_hours);
+$limitMinutes = ($limitH * 60) + (int)$limitM;
+ 
+  list($hours, $minutes) = explode(':', $total_hours);
+
+// Convert total hours to decimal hours
+$decimal_hours = $hours + ($minutes / 60);
+
+// Calculate total cost
+$total_cost = $hrate * $decimal_hours;
+if ($total_hours <= $limit_hours) {
+
+  $final = ($total_cost) + $scValueAmount1;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
 }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiWeekly'){
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-weekly'){
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-Monthly'){
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiMonthly'){
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
 }else if ($data['timesheet_data'][0]['payroll_type']=='SalesCommission'){
- $final = ($hrate * $total_hours) + $scValueAmount1;
+ $final = ($total_cost) + $scValueAmount1;
 }
 else if ($data['timesheet_data'][0]['payroll_type']=='Sales Partner'){
  $final = $scValueAmount1;
@@ -3867,11 +3895,12 @@ $this->db->where('timesheet_info.month <=', date('Y-m-d'));
 $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') <= STR_TO_DATE('$d1', '%m/%d/%Y')", NULL, FALSE);
 $query = $this->db->get();
 $info_datapay = $this->Hrm_model->get_data_pay($d1,$empid,$timesheetdata[0]['timesheet_id']);
+        
 $sc_info_datapay = $this->Hrm_model->sc_get_data_pay($d1,$empid,$timesheetdata[0]['timesheet_id']);
            if ($query->num_rows() >1) {
           //  echo "IF ";
            $info_datapay = $this->Hrm_model->get_data_pay($d1,$empid,$timesheetdata[0]['timesheet_id']);
-          // print_r( $info_datapay[0]['t_hours']); die();
+      
         //  print_r($info_datapay);
       $data['overalltotalhours']=$info_datapay[0]['t_hours'];
       $data['extra_eth']=$info_datapay[0]['eth'];
@@ -3961,7 +3990,7 @@ if($payslip_design[0]['template']==3){
  }else{
  $data['template']==1;
        $content = $this->parser->parse('hr/pay_slip', $data, true);
- //print_r($data);die();
+// print_r($data);die();
       $this->template->full_admin_html_view($content);
  }
         }
@@ -4535,8 +4564,21 @@ $scValue = $scValue / 100;
 // Calculate the percentage of $sc_totalAmount1 based on $scValue
 $scValueAmount1 = $scValue * $sc_totalAmount1;
 if($data['timesheet_data'][0]['payroll_type']=='Hourly'){
-if ($total_hours <= 40) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+   $limit_hours = '40:00';
+  list($totalH, $totalM) = explode(':', $total_hours);
+$totalMinutes = ($totalH * 60) + (int)$totalM;
+list($limitH, $limitM) = explode(':', $limit_hours);
+$limitMinutes = ($limitH * 60) + (int)$limitM;
+ 
+  list($hours, $minutes) = explode(':', $total_hours);
+
+// Convert total hours to decimal hours
+$decimal_hours = $hours + ($minutes / 60);
+
+// Calculate total cost
+$total_cost = $hrate * $decimal_hours;
+if ($total_hours <= $limit_hours) {
+  $final = ($total_cost) + $scValueAmount1;
   //echo "IF : ".$final;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
@@ -4544,7 +4586,7 @@ if ($total_hours <= 40) {
 }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiWeekly'){
 if ($total_hours <= 14) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
   //echo "IF : ".$final;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
@@ -4552,7 +4594,7 @@ if ($total_hours <= 14) {
 }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-weekly'){
 if ($total_hours <= 7) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
   //echo "IF : ".$final;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
@@ -4560,7 +4602,7 @@ if ($total_hours <= 7) {
 }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-Monthly'){
 if ($total_hours <= 30) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
   //echo "IF : ".$final;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
@@ -4568,14 +4610,15 @@ if ($total_hours <= 30) {
 }
 }else if ($data['timesheet_data'][0]['payroll_type']=='Salaried-BiMonthly'){
 if ($total_hours <= 60) {
-  $final = ($hrate * $total_hours) + $scValueAmount1;
+  $final = ($total_cost) + $scValueAmount1;
   //echo "IF : ".$final;
 } else {
   $final = $data['timesheet_data'][0]['extra_thisrate'] + $data['timesheet_data'][0]['above_extra_sum'];
   //////  echo "Else : ".$final;
 }
 }
-//  $final=($hrate *$total_hours)+$scValueAmount1;
+
+//  $final=($hrate"" *$total_hours)+$scValueAmount1;
        // Federal Income Tax
           $s='';$u='';$m='';$f='';
           $federal_tax = $this->db->select('*')->from('federal_tax')->where('tax','Federal Income tax')->get()->result_array();

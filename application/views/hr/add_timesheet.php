@@ -927,21 +927,30 @@ $(".hasTimepicker").prop("readonly", false);
    $(".hasTimepicker").prop("readonly", true); 
     }
 });
-$(document).on('click','.delete_day',function(){
-$(this).closest('tr').remove();
- var total_net=0;
- $('.table').each(function() {
-    $(this).find('.timeSum').each(function() {
-        var precio = $(this).val();
-        if (!isNaN(precio) && precio.length !== 0) {
-          total_net += parseFloat(precio);
-        }
-      });
-  });
-//   console.log(total_net.toFixed(3));
+$(document).on('click', '.delete_day', function() {
+    $(this).closest('tr').remove();
 
-$('#total_net').val(total_net.toFixed(2)).trigger('change');
-  var firstDate = $('.date input').first().val(); 
+    // Recalculate the total net after deleting a row
+    var total_netH = 0;
+    var total_netM = 0;
+
+    $('.table').each(function() {
+        $(this).find('.timeSum').each(function() {
+            var precio = $(this).val();
+            if (!isNaN(precio) && precio.length !== 0) {
+                var [hours, minutes] = precio.split('.').map(parseFloat);
+                total_netH += hours;
+                total_netM += minutes;
+            }
+        });
+    });
+
+    // Convert total hours and minutes to the correct format
+    var timeConversion = convertToTime(total_netH, total_netM);
+    $('#total_net').val(timeConversion).trigger('change');
+
+    // Update the date range if necessary
+    var firstDate = $('.date input').first().val(); 
     var lastDate = $('.date input').last().val(); 
     function convertDateFormat(dateStr) {
         const [day, month, year] = dateStr.split('/');
@@ -949,8 +958,9 @@ $('#total_net').val(total_net.toFixed(2)).trigger('change');
     }
     var firstDateMDY = convertDateFormat(firstDate);
     var lastDateMDY = convertDateFormat(lastDate);
-  $('#reportrange').val(firstDateMDY + ' - ' + lastDateMDY);
+    $('#reportrange').val(firstDateMDY + ' - ' + lastDateMDY);
 });
+
 $(function() {
     $('.applyBtn').datepicker({
         onSelect: function(date) {
