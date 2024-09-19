@@ -10,6 +10,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+
 <link href="<?php echo base_url() ?>assets/css/daterangepicker.css" rel="stylesheet">
 <link href="<?php echo base_url() ?>assets/css/style.css" rel="stylesheet">
 
@@ -849,32 +851,24 @@ $total_c = round($total_c, 2);
 </div>
 
 
+    <div class="panel-title">
+    <div class="col-sm-12">
+    <div class="col-sm-6">
+    <label for="selector">Payment Method
+    <i class="text-danger">*</i>
+    </label>
+            </div>
+            <div class="col-sm-6">
+    <select id="selector" name="payment_method" onchange="yesnoCheck(this);"  class="form-control" >
+        <option value="<?php  echo $time_sheet_data[0]['payment_method']; ?>"><?php  echo $time_sheet_data[0]['payment_method']; ?></option>
+        <option value="Cheque">Cheque/Check </option>
+        <option value="Bank">Bank</option>
+        <option value="Cash">Cash</option>
+    </select>
+    </div>
+    </div>
+    </div>
 
-
-
-
-
-
-
-
-
-<div class="panel-title">
-<div class="col-sm-12">
-<div class="col-sm-6">
-<label for="selector">Payment Method
-<i class="text-danger">*</i>
-</label>
-        </div>
-        <div class="col-sm-6">
-<select id="selector" name="payment_method" onchange="yesnoCheck(this);"  class="form-control" >
-    <option value="<?php  echo $time_sheet_data[0]['payment_method']; ?>"><?php  echo $time_sheet_data[0]['payment_method']; ?></option>
-    <option value="Cheque">Cheque/Check </option>
-    <option value="Bank">Bank</option>
-    <option value="Cash">Cash</option>
-</select>
-<!-- <label for="selector">Select ID Proof</label> -->
-</div>
-        </div></div>
 <div id="adc" >
     <br/>
         <div class="col-sm-12" style="padding-top:20px;">
@@ -888,10 +882,11 @@ $total_c = round($total_c, 2);
 <label for="aadhar">Cheque Date<i class="text-danger">*</i></label> 
  </div>
     <div class="col-sm-6"> 
-<input type="date" id="cheque_date" name="cheque_date" value="<?php  echo $time_sheet_data[0]['cheque_date']; ?>"  class="form-control"  requried/><br />
+<input type="text" id="datepicker" name="cheque_date" value="<?php  echo $time_sheet_data[0]['cheque_date']; ?>"  class="form-control"  requried/><br />
         </div></div>
 </div>
-<div id="pc" >
+
+<div id="pc">
      <div class="col-sm-12" style="padding-top:20px;">
 <div class="col-sm-6">
 <label for="pan">Bank Name<i class="text-danger">*</i></label> 
@@ -907,6 +902,20 @@ $total_c = round($total_c, 2);
 </div>
 </div>
 </div>
+
+<!--Cash Method -->
+<div id="Cashmethod">
+    <br/>
+    <div class="col-sm-12" style="padding-top:20px;">
+    <div class="col-sm-6">
+        <label for="aadhar">Date<i class="text-danger">*</i></label> 
+    </div>
+       <div class="col-sm-6"> 
+            <input type="text" id="datepicker" name="cash_date" value="<?php echo $time_sheet_data[0]['cheque_date']; ?>"  class="form-control" requried /><br />
+        </div>
+    </div>
+</div>
+
 <div id="ps" style="display:none;">
       <div class="col-sm-12" style="padding-top:20px;">
     <div class="col-sm-6">
@@ -955,27 +964,30 @@ $total_c = round($total_c, 2);
   if (that.value == "Cheque") 
     {
         document.getElementById("adc").style.display = "block";
-         document.getElementById("pc").style.display = "none";
+        document.getElementById("pc").style.display = "none";
+        document.getElementById("Cashmethod").style.display = "none";
           // document.getElementById("ps").style.display = "none";
     }
     else   if (that.value == "Bank")
     {
           document.getElementById("adc").style.display = "none";
          document.getElementById("pc").style.display = "block";
+         document.getElementById("Cashmethod").style.display = "none";
         //   document.getElementById("ps").style.display = "none";
       
     }
     else if (that.value == "Cash")
     {
         document.getElementById("adc").style.display = "none";
-         document.getElementById("pc").style.display = "none";
-         //  document.getElementById("ps").style.display = "block";
+        document.getElementById("pc").style.display = "none";
+        document.getElementById("Cashmethod").style.display = "block";
     }
 
     else
     {
-              document.getElementById("adc").style.display = "none";
-         document.getElementById("pc").style.display = "none";
+        document.getElementById("adc").style.display = "none";
+        document.getElementById("pc").style.display = "none";
+        document.getElementById("Cashmethod").style.display = "none";
           // document.getElementById("ps").style.display = "none";
     }
 }
@@ -990,6 +1002,7 @@ var that=$('#selector').val();
     {
         $('#adc').show();
       $('#pc').hide();
+      $('#Cashmethod').hide();
     //  $('#ps').hide();
       
     }
@@ -997,6 +1010,7 @@ var that=$('#selector').val();
     {
              $('#adc').hide();
       $('#pc').show();
+      $('#Cashmethod').hide();
      // $('#ps').hide();
 
         
@@ -1006,11 +1020,13 @@ var that=$('#selector').val();
     {
         $('#adc').hide();
       $('#pc').hide();
+      $('#Cashmethod').show();
     //  $('#ps').show();
      
     }else{
            $('#adc').hide();
       $('#pc').hide();
+      $('#Cashmethod').hide();
      // $('#ps').hide();
     }
 
@@ -1453,4 +1469,10 @@ function convertToTime(hr,min) {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     return `${hours+hr}:${minutes}`;
 }
+
+$(function() {
+    $("#datepicker").datepicker({
+        dateFormat: 'mm-dd-yy'  
+    });
+});
 </script>
