@@ -375,33 +375,44 @@
 <!-- Manage Invoice End -->
 <script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>
 <script>
-$( function() {
-      $( ".daterangepicker-field" ).daterangepicker({
-        dateFormat: 'mm/dd/yy' // Setting the desired date format
-      });
-    });
-    var csrfName = '<?php echo $this->security->get_csrf_token_name();?>';
-    var csrfHash = '<?php echo $this->security->get_csrf_hash();?>';
-    $(function() {
-    var start = moment().startOf('isoWeek'); // Start of the current week
-    var end = moment().endOf('isoWeek'); // End of the current week
-    var startOfLastWeek = moment().subtract(1, 'week').startOf('week');
-    var endOfLastWeek = moment().subtract(1, 'week').endOf('week').add(1, 'day');
-    // Add one extra day
-    function cb(start, end) {
+$(function() {
+  // Initialize the daterangepicker with desired date format
+  $(".daterangepicker-field").daterangepicker({
+    dateFormat: 'mm/dd/yy' // Setting the desired date format
+  });
+});
+
+var csrfName = '<?php echo $this->security->get_csrf_token_name();?>';
+var csrfHash = '<?php echo $this->security->get_csrf_hash();?>';
+
+$(function() {
+  var start = moment().startOf('isoWeek'); // Start of the current week
+  var end = moment().endOf('isoWeek'); // End of the current week
+  var startOfLastWeek = moment().subtract(1, 'week').startOf('week'); // Start of last week
+  var endOfLastWeek = moment().subtract(1, 'week').endOf('week').add(1, 'day'); // End of last week (with one extra day)
+
+  // Function to update the date field
+  function cb(start, end) {
     $('#daterangepicker-field').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-    }
-    $('#daterangepicker-field').daterangepicker({
+  }
+
+  // Initialize daterangepicker
+  $('#daterangepicker-field').daterangepicker({
     startDate: start,
     endDate: end,
     ranges: {
-       'Last Week Before': [moment().subtract(2,  'week').startOf('week') , moment().subtract(2, 'week').endOf('week')],
-       'Last Week': [startOfLastWeek, endOfLastWeek],
-       'This Week': [moment().startOf('week'), moment().endOf('week')],
-       'This Month': [moment().startOf('month'), moment().endOf('month')],
-       'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+      'Last 90 Days': [moment().subtract(89, 'days'), moment()],
+      'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+      'All Time': [moment().subtract(50, 'years'), moment()], // Example for 'All Time', adjust as needed
+      'Custom Range': [moment().subtract(1, 'month'), moment()], // Default custom range (can be updated by user)
+      'Last Week Before': [moment().subtract(2, 'week').startOf('week'), moment().subtract(2, 'week').endOf('week')],
+      'Last Week': [startOfLastWeek, endOfLastWeek],
+      'This Week': [moment().startOf('week'), moment().endOf('week')],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
     }
-    }, cb);
+  }, cb);
 });
 
 
