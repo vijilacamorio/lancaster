@@ -845,8 +845,9 @@ public function unemploymenttaxIndexData()
     $i              = $start + 1;
     $edit           = "";
     $delete         = "";
+    $index = 0;
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['u_utax']) ? $fed_tax_emplr[$i]['u_utax'] : 0;
+        $s_stax_emplr = isset($fed_tax_emplr[$index]['u_utax']) ? $fed_tax_emplr[$index]['u_utax'] : 0;
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
@@ -859,6 +860,7 @@ public function unemploymenttaxIndexData()
         ];
         $data[] = $row;
         $i++;
+        $index++;
     }
     $response = [
         "draw"            => $this->input->post("draw"),
