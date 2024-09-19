@@ -1252,6 +1252,7 @@ public function generateAgentcheck()
 
 
 public function second_pay_slip() {
+    // print_r($this->input->post()); die();
           $CI = & get_instance();
           $CI->load->model('invoice_content');
           $w = & get_instance();
@@ -1281,11 +1282,18 @@ public function second_pay_slip() {
           $data_timesheet['above_this_hours'] = $this->input->post('above_this_hours');
           $data_timesheet['above_extra_ytd'] = $this->input->post('above_extra_ytd');
           $data_timesheet['month'] = $this->input->post('date_range');
-          $date_split=explode(' - ',$this->input->post('date_range'));
+          $date_split = explode(' - ',$this->input->post('date_range'));
           $data_timesheet['start'] =  $date_split[0];
           $data_timesheet['end'] =  $date_split[1];
-    
- // Assuming $data_timesheet['start'] is set and contains a date in the format of 'd/m/Y'
+
+        if ($this->input->post('payment_method') == 'Cash') {
+            $data_timesheet['cheque_date'] =(!empty($this->input->post('cash_date',TRUE))?$this->input->post('cash_date',TRUE):'');
+        } 
+        else if ($this->input->post('payment_method') == 'Cheque') {
+            $data_timesheet['cheque_date'] =(!empty($this->input->post('cheque_date',TRUE))?$this->input->post('cheque_date',TRUE):'');
+        }
+
+ //Assuming $data_timesheet['start'] is set and contains a date in the format of 'd/m/Y'
  $start_date = $data_timesheet['start'];
 $month = intval(substr($start_date, 0, 2));
 
@@ -1312,10 +1320,12 @@ $data_timesheet['quarter'] = $quarter;
        $data_timesheet['create_by'] =$this->session->userdata('user_id');
        $data_timesheet['admin_name'] = (!empty($this->input->post('administrator_person',TRUE))?$this->input->post('administrator_person',TRUE):'');
        $data_timesheet['payment_method'] =(!empty($this->input->post('payment_method',TRUE))?$this->input->post('payment_method',TRUE):'');
-       $data_timesheet['cheque_no'] =(!empty($this->input->post('cheque_no',TRUE))?$this->input->post('cheque_no',TRUE):'');
-       $data_timesheet['cheque_date'] =(!empty($this->input->post('cheque_date',TRUE))?$this->input->post('cheque_date',TRUE):'');
-         $data_timesheet['bank_name'] =(!empty($this->input->post('bank_name',TRUE))?$this->input->post('bank_name',TRUE):'');
+
+           $data_timesheet['cheque_no'] =(!empty($this->input->post('cheque_no',TRUE))?$this->input->post('cheque_no',TRUE):'');
+
+           $data_timesheet['bank_name'] =(!empty($this->input->post('bank_name',TRUE))?$this->input->post('bank_name',TRUE):'');
            $data_timesheet['payment_ref_no'] =(!empty($this->input->post('payment_refno',TRUE))?$this->input->post('payment_refno',TRUE):'');
+
      $timesheet_id  = $this->input->post('tsheet_id');
      $total_hours   = $this->input->post('total_net', TRUE);
       // Validate input data
@@ -1416,13 +1426,12 @@ $data['job_title']=$row['designation'];
   $this->db->where('timesheet_id', $this->session->userdata("timesheet_id_old"));
  $this->db->delete('timesheet_info');
   $this->db->where('timesheet_id', $this->session->userdata("timesheet_id_old"));
-       $this->db->delete('timesheet_info_details');
+$this->db->delete('timesheet_info_details');
  $this->db->insert('timesheet_info', $data_timesheet);
-//  echo $this->db->last_query(); die();
+
 }
    else{
    $this->db->insert('timesheet_info', $data_timesheet);
-    // echo $this->db->last_query(); die();
   }
 //  $final_h_rate=$this->db->select('h_rate')->from('timesheet_info')->where('templ_name',$this->input->post('templ_name'))->where('month', $this->input->post('date_range'))->get()->row()->h_rate;
 //  $final=($final_h_rate *$total_hours)+$scValueAmount1;
@@ -7293,33 +7302,21 @@ $data['setting_detail'] = $setting_detail;
 
 
 
- public function add_timesheet() {
+ public function add_timesheet() 
+ {
     $data['title'] = display('add_timesheet');
-    
-        $CI = & get_instance();
-        $this->load->model('Hrm_model');
-
-        $CI->load->model('Web_settings');
-
-        $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
-        $data['employee_name'] = $this->Hrm_model->employee_name1();
-
-         $data['payment_terms'] = $this->Hrm_model->get_payment_terms();
-    
-         $data['setting_detail'] = $setting_detail;
-
-        $data['dailybreak'] = $this->Hrm_model->get_dailybreak();
-        
-        $data['duration'] = $this->Hrm_model->get_duration_data();
-    
-        $content = $this->parser->parse('hr/add_timesheet', $data, true);
-        $this->template->full_admin_html_view($content);
-        }
-    
-    
-    
-    
-    
+    $CI = & get_instance();
+    $this->load->model('Hrm_model');
+    $CI->load->model('Web_settings');
+    $setting_detail = $CI->Web_settings->retrieve_setting_editdata();
+    $data['employee_name'] = $this->Hrm_model->employee_name1();
+    $data['payment_terms'] = $this->Hrm_model->get_payment_terms();
+    $data['setting_detail'] = $setting_detail;
+    $data['dailybreak'] = $this->Hrm_model->get_dailybreak();
+    $data['duration'] = $this->Hrm_model->get_duration_data();
+    $content = $this->parser->parse('hr/add_timesheet', $data, true);
+    $this->template->full_admin_html_view($content);
+}
     
     
     
