@@ -722,8 +722,9 @@ public function securitytaxIndexData()
     $i              = $start + 1;
     $edit           = "";
     $delete         = "";
+    $index = 0;
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['s_stax']) ? $fed_tax_emplr[$i]['s_stax'] : 0;
+        $s_stax_emplr = isset($fed_tax_emplr[$index]['s_stax']) ? $fed_tax_emplr[$index]['s_stax'] : 0;
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
@@ -736,6 +737,7 @@ public function securitytaxIndexData()
         ];
         $data[] = $row;
         $i++;
+        $index++;
     }
     $response = [
         "draw"            => $this->input->post("draw"),
