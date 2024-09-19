@@ -196,7 +196,7 @@
                         <div id="datepicker-container">
                            <input type="text" class="form-control daterangepicker-field getdate_reults" id="daterangepicker-field" name="daterangepicker-field" style="margin-top: 15px;padding: 5px; width: 200px; border-radius: 8px; height: 35px;" />
                         </div>
-                        </td>
+                     </td>
                            <input type="hidden" class="getcurrency" value="
                               <?php echo $currency; ?>">
                            <td style='float: left;width:30px; position: relative; top: 4px;'>
@@ -260,9 +260,13 @@
                            <tbody class="sortableTable__body" id="tab">
                               <?php
                                  $count=1;
+                                  // print_r($mergedArray);
                                  if(empty($tax)){  
                                   $i=0;
-                                    foreach($fed_tax as $f_tax){    ?> 
+                                    foreach($fed_tax as $f_tax){
+                                   
+                                     
+                                   ?> 
                               <tr>
                                  <td> <?php echo $count; ?> </td>
                                  <td> <?php echo  $f_tax['first_name']." ".$f_tax['middle_name']." ".$f_tax['last_name']; ?> </td>
@@ -428,95 +432,91 @@ $( function() {
 });
 
 $('#fetch_tax').submit(function(event) {
-    event.preventDefault(); // Prevent the default form submission
-    
+    event.preventDefault();
     var dataString = $("#fetch_tax").serialize();
-    dataString[csrfName] = csrfHash; // Add CSRF tokens
-    
+    dataString[csrfName] = csrfHash;
     $.ajax({
         type: "POST",
         dataType: "json",
         url: "<?php echo base_url('Chrm/social_taxsearch'); ?>",
         data: dataString,
-        success: function(response) {
-            console.log(response);
-            
-            var employeeData = response.aggregated_employe; // Employee data
-            var employerData = response.aggregated_employer; // Employer data
+success: function(response) {
+    console.log(response);
+    var employeeData = response.employe; // Assuming 'employe' contains the employee data
+    var employerData = response.employer; // Assuming 'employer' contains the employer data
 
-            // Clear table body first
-            var tbody = $("#ProfarmaInvList tbody").empty();
+    // Clear table body first
+    var tbody = $("#ProfarmaInvList tbody").empty();
 
-            // Display employee and employer contributions side by side for each tax type
-            for (var i = 0; i < employeeData.length; i++) {
-                var employee = employeeData[i];
-                var employer = employerData[i] || {}; // Handle missing data gracefully
-                
-                var row = "<tr>";
-                row += "<td style='text-align: center;'>" + (i + 1) + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['first_name'] || '') + " " +(employee['middle_name'] || '')+" "+ (employee['last_name'] || '') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['employee_tax'] || '') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['fftax'] ? parseFloat(employee['fftax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employer['fftax'] ? parseFloat(employer['fftax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['sstax'] ? parseFloat(employee['sstax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employer['sstax'] ? parseFloat(employer['sstax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['mmtax'] ? parseFloat(employee['mmtax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employer['mmtax'] ? parseFloat(employer['mmtax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['uutax'] ? parseFloat(employee['uutax']).toFixed(2) : '0.00') + "</td>";
-                row += "<td style='text-align: center;'>" + (employer['uutax'] ? parseFloat(employer['uutax']).toFixed(2) : '0.00') + "</td>";
-                row += "</tr>";
-                tbody.append(row);
-            }
+    // Display employee and employer contributions side by side for each tax type
+    for (var i = 0; i < employeeData.length; i++) {
+        var employee = employeeData[i];
+        var employer = employerData[i]; // Assuming employer data is aligned with employee data
+        var row = "<tr>";
+        row += "<td style='text-align: center;'>" + (i + 1) + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['first_name'] || '') + " " +(employee['middle_name'] || '')+" "+ (employee['last_name'] || '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['employee_tax'] || '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['f_ftax'] ? parseFloat(employee['f_ftax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employer['fftax'] ? parseFloat(employer['fftax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['s_stax'] ? parseFloat(employee['s_stax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employer['sstax'] ? parseFloat(employer['sstax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['m_mtax'] ? parseFloat(employee['m_mtax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employer['mmtax'] ? parseFloat(employer['mmtax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employee['u_utax'] ? parseFloat(employee['u_utax']).toFixed(2) : '') + "</td>";
+        row += "<td style='text-align: center;'>" + (employer['uutax'] ? parseFloat(employer['uutax']).toFixed(2) : '') + "</td>";
+        row += "</tr>";
+        tbody.append(row);
+    }
 
-            // Display totals
-            var totalEmployeeContribution = {
-                'FederalIncomeTax': 0,
-                'SocialSecurityTax': 0,
-                'MedicareTax': 0,
-                'UnemploymentTax': 0
-            };
-            var totalEmployerContribution = {
-                'FederalIncomeTax': 0,
-                'SocialSecurityTax': 0,
-                'MedicareTax': 0,
-                'UnemploymentTax': 0
-            };
+    // Display totals
+    var totalEmployeeContribution = {
+        'FederalIncomeTax': 0,
+        'SocialSecurityTax': 0,
+        'MedicareTax': 0,
+        'UnemploymentTax': 0
+    };
+    var totalEmployerContribution = {
+        'FederalIncomeTax': 0,
+        'SocialSecurityTax': 0,
+        'MedicareTax': 0,
+        'UnemploymentTax': 0
+    };
 
-            // Calculate totals
-            for (var i = 0; i < employeeData.length; i++) {
-                var employee = employeeData[i];
-                var employer = employerData[i] || {}; // Handle missing data gracefully
-                totalEmployeeContribution['FederalIncomeTax'] += parseFloat(employee['f_ftax']) || 0;
-                totalEmployeeContribution['SocialSecurityTax'] += parseFloat(employee['s_stax']) || 0;
-                totalEmployeeContribution['MedicareTax'] += parseFloat(employee['m_mtax']) || 0;
-                totalEmployeeContribution['UnemploymentTax'] += parseFloat(employee['u_utax']) || 0;
+    // Calculate totals
+    for (var i = 0; i < employeeData.length; i++) {
+        var employee = employeeData[i];
+        var employer = employerData[i];
+        totalEmployeeContribution['FederalIncomeTax'] += parseFloat(employee['f_ftax']) || 0;
+        totalEmployeeContribution['SocialSecurityTax'] += parseFloat(employee['s_stax']) || 0;
+        totalEmployeeContribution['MedicareTax'] += parseFloat(employee['m_mtax']) || 0;
+        totalEmployeeContribution['UnemploymentTax'] += parseFloat(employee['u_utax']) || 0;
 
-                totalEmployerContribution['FederalIncomeTax'] += parseFloat(employer['fftax']) || 0;
-                totalEmployerContribution['SocialSecurityTax'] += parseFloat(employer['sstax']) || 0;
-                totalEmployerContribution['MedicareTax'] += parseFloat(employer['mmtax']) || 0;
-                totalEmployerContribution['UnemploymentTax'] += parseFloat(employer['uutax']) || 0;
-            }
-
-            var tfoot = $("#ProfarmaInvList tfoot").empty();
-            // Append total row
-            var totalRow = "<tr class='btnclr'>";
-            totalRow += "<td style='text-align:end;' colspan='3'>Total </td>";
-            totalRow += "<td>" + totalEmployeeContribution['FederalIncomeTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployerContribution['FederalIncomeTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployeeContribution['SocialSecurityTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployerContribution['SocialSecurityTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployeeContribution['MedicareTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployerContribution['MedicareTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployeeContribution['UnemploymentTax'].toFixed(2) + "</td>";
-            totalRow += "<td>" + totalEmployerContribution['UnemploymentTax'].toFixed(2) + "</td>";
-            totalRow += "</tr>";
-            tfoot.append(totalRow);
-        },
+        totalEmployerContribution['FederalIncomeTax'] += parseFloat(employer['fftax']) || 0;
+        totalEmployerContribution['SocialSecurityTax'] += parseFloat(employer['sstax']) || 0;
+        totalEmployerContribution['MedicareTax'] += parseFloat(employer['mmtax']) || 0;
+        totalEmployerContribution['UnemploymentTax'] += parseFloat(employer['uutax']) || 0;
+    }
+var tfoot = $("#ProfarmaInvList tfoot").empty();
+    // Append total row
+    var totalRow = "<tr class='btnclr'>";
+    totalRow += "<td style='text-align:end;' colspan='3'>Total </td>";
+    totalRow += "<td>" + totalEmployeeContribution['FederalIncomeTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployerContribution['FederalIncomeTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployeeContribution['SocialSecurityTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployerContribution['SocialSecurityTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployeeContribution['MedicareTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployerContribution['MedicareTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployeeContribution['UnemploymentTax'].toFixed(2) + "</td>";
+    totalRow += "<td>" + totalEmployerContribution['UnemploymentTax'].toFixed(2) + "</td>";
+    totalRow += "</tr>";
+    tfoot.append(totalRow);
+},
         error: function(xhr, status, error) {
             console.error("Error:", error);
             // Handle the error or display a message to the user
         }
     });
+    event.preventDefault();
 });
 
 

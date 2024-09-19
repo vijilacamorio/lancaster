@@ -418,26 +418,37 @@ $fs=strtoupper($infoemployee[0]['first_name']);
          <th><?php echo round($sc,2); ?></th>
       <?php endif; ?>
       <th><?php echo round($above_extra_sum + $sc,2); ?></th>
-      <th><?php echo ((float)$above_eth); ?></th>
+      <th><?php echo ($above_eth); ?></th>
      <th>
           <?php if($partner){ echo $partner; }             
           else if($above_ytdeth >0)            
-          {  echo round($above_ytdeth, 2)  + $extra_ytdeth  ; }
+          {  echo round($above_ytdeth, 2)    ; }
          else{ echo round($overalltotalamount, 2); }  ?>                
          </th>
       </tr>
       
       
       <?php } else {?>
-         <tr>
-      <th><strong>TOTAL :</strong></td>
-      <th> <?php echo $above_extra_beforehours + $extra_hour ; ?>  </th>
-      <th></th>
-      <?php if ($sc): ?>
-         <th>  </th>
-      <?php endif; ?>
-      <th><?php echo $above_extra_sum + $extra_thisrate + $sc; ?></th>
-      <th><?php 
+            <tr>
+         <th><strong>TOTALl :</strong></td>
+         <th> <?php 
+         list($hours1, $minutes1) = explode(':', $above_extra_beforehours);
+list($hours2, $minutes2) = explode(':', $extra_hour);
+
+$totalMinutes = ($hours1 * 60 + $minutes1) + ($hours2 * 60 + $minutes2);
+$finalHours = floor($totalMinutes / 60);
+$finalMinutes = $totalMinutes % 60;
+
+$result = sprintf('%02d:%02d', $finalHours, $finalMinutes);
+         echo $result ; ?>  </th>
+         <th></th>
+         <?php if ($sc): ?>
+            <th>  </th>
+         <?php endif; ?>
+ 
+
+         <th><?php echo $above_extra_sum + $extra_thisrate + $sc; ?></th>
+       <th><?php 
       list($hours1, $minutes1) = explode(':', $above_eth);
 $totalMinutes1 = ($hours1 * 60) + $minutes1;
 
@@ -454,9 +465,14 @@ $minutes = $totalMinutes % 60;
 // Format the result as hours:minutes
 $total_time = sprintf('%d:%02d', $hours, $minutes);
       echo $total_time ; ?></th>
-      <th><?php echo round ($above_ytdeth, 3) + $extra_ytdeth ; ?></th>
-      </tr>
-      <?php } ?>
+         <th><?php echo round ($above_ytdeth, 3) + $extra_ytdeth ; ?></th>
+      
+         </tr>
+         
+         
+         
+          
+         <?php } ?>
                        
                            
                          
