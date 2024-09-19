@@ -1188,21 +1188,78 @@ public function get_overtime_data(){
    }
    return false;
 }
-public function get_data_pay($d1=null,$empid,$timesheetid){
-    $this->db->select('timesheet_info.*, info_payslip.*, SUM(info_payslip.s_tax) as t_s_tax, SUM(info_payslip.m_tax) as t_m_tax, SUM(info_payslip.f_tax) as t_f_tax, SUM(info_payslip.u_tax) as t_u_tax, SUM(info_payslip.total_amount) as t_amount,SUM(info_payslip.sc) as sc, SUM(timesheet_info.total_hours) as t_hours ,     SUM(timesheet_info.extra_this_hour) as eth ,SUM(timesheet_info.extra_ytd) as ytdeth   ,   SUM(timesheet_info.above_this_hours) as above_eth , SUM(timesheet_info.extra_ytd) as ytdeth ,SUM(timesheet_info.above_extra_ytd) as above_ytdeth ');
+// public function get_data_pay($d1=null,$empid,$timesheetid){
+//     $this->db->select('timesheet_info.*, info_payslip.*, SUM(info_payslip.s_tax) as t_s_tax, SUM(info_payslip.m_tax) as t_m_tax, SUM(info_payslip.f_tax) as t_f_tax, SUM(info_payslip.u_tax) as t_u_tax, SUM(info_payslip.total_amount) as t_amount,SUM(info_payslip.sc) as sc, SUM(timesheet_info.total_hours) as t_hours ,     SUM(timesheet_info.extra_this_hour) as eth ,SUM(timesheet_info.extra_ytd) as ytdeth   ,   SUM(timesheet_info.above_this_hours) as above_eth , SUM(timesheet_info.extra_ytd) as ytdeth ,SUM(timesheet_info.above_extra_ytd) as above_ytdeth ');
+//     $this->db->from('timesheet_info');
+//     $this->db->join('info_payslip', 'timesheet_info.timesheet_id = info_payslip.timesheet_id');
+//     $this->db->where('info_payslip.templ_name',$empid);
+//     $this->db->where('info_payslip.create_by', $this->session->userdata('user_id'));
+//     $this->db->select('(SUM(info_payslip.total_amount) - SUM(info_payslip.sc)) as t_amount', FALSE);
+//     $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') <= STR_TO_DATE(' $d1', '%m/%d/%Y')", NULL, FALSE);
+//     $this->db->group_by('info_payslip.templ_name, info_payslip.create_by');
+//     $query = $this->db->get();
+//     if ($query->num_rows() > 0) {
+//         return $query->result_array();
+//     }
+//     return false;
+//         }
+public function get_data_pay($d1 = null, $empid, $timesheetid) {
+    $this->db->select('timesheet_info.*, 
+        info_payslip.*, 
+        SUM(info_payslip.s_tax) as t_s_tax, 
+        SUM(info_payslip.m_tax) as t_m_tax, 
+        SUM(info_payslip.f_tax) as t_f_tax, 
+        SUM(info_payslip.u_tax) as t_u_tax, 
+        SUM(timesheet_info.above_extra_ytd) as above_ytdeth,
+        SUM(timesheet_info.extra_ytd) as ytdeth,
+        SUM(info_payslip.sc) as sc, 
+        SEC_TO_TIME(SUM(TIME_TO_SEC(timesheet_info.total_hours))) as total_sec,
+        SEC_TO_TIME(SUM(TIME_TO_SEC(timesheet_info.extra_this_hour))) as total_eth,
+        SEC_TO_TIME(SUM(TIME_TO_SEC(timesheet_info.above_this_hours))) as total_above_eth
+    ');
+
     $this->db->from('timesheet_info');
     $this->db->join('info_payslip', 'timesheet_info.timesheet_id = info_payslip.timesheet_id');
-    $this->db->where('info_payslip.templ_name',$empid);
+    $this->db->where('info_payslip.templ_name', $empid);
     $this->db->where('info_payslip.create_by', $this->session->userdata('user_id'));
     $this->db->select('(SUM(info_payslip.total_amount) - SUM(info_payslip.sc)) as t_amount', FALSE);
-    $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') <= STR_TO_DATE(' $d1', '%m/%d/%Y')", NULL, FALSE);
+    $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), '%m/%d/%Y') <= STR_TO_DATE('$d1', '%m/%d/%Y')", NULL, FALSE);
     $this->db->group_by('info_payslip.templ_name, info_payslip.create_by');
+
     $query = $this->db->get();
+   
     if ($query->num_rows() > 0) {
-        return $query->result_array();
+        $result = $query->result_array();
+        // Format the total seconds to "HH:MM"
+        foreach ($result as &$row) {
+            $row['t_hours'] = $this->format_time($row['total_sec']);
+            $row['eth'] = $this->format_time($row['total_eth']);
+            $row['above_eth'] = $this->format_time($row['total_above_eth']);
+        }
+        return $result;
     }
     return false;
-        }
+}
+
+private function format_time($time) {
+    // Ensure the time is a valid string before processing
+    if (is_string($time)) {
+        list($hours, $minutes, $seconds) = explode(':', $time);
+        
+        // Cast to integers to avoid type errors
+        $hours = (int)$hours;
+        $minutes = (int)$minutes;
+
+        // Adjust for minutes over 60
+        $hours += ($minutes >= 60) ? (int)($minutes / 60) : 0;
+        $minutes = $minutes % 60;
+
+        // Return formatted time
+        return str_pad($hours, 2, '0', STR_PAD_LEFT) . ':' . str_pad($minutes, 2, '0', STR_PAD_LEFT);
+    }
+    return '00:00'; // Return default if the time format is unexpected
+}
+
 public function get_tax_info($d1=null,$empid,$timesheetid){
 $this->db->select('tax, SUM(amount) as total_amount');
 $this->db->from('tax_history');
@@ -1270,8 +1327,15 @@ foreach ($filteredResult as $row) {
     $total_gtotal += $row['gtotal'];
 }
 $result['total_gtotal'] = $total_gtotal;
- foreach ($filteredResult as &$row) {
-    $row['sc'] *= $count;
+foreach ($filteredResult as &$row) {
+ 
+    if (is_numeric($row['sc'])) {
+        $row['sc'] *= $count; 
+    } else {
+     
+        $row['sc'] = 0; 
+       
+    }
 }
 return $result;
 }
@@ -2518,6 +2582,7 @@ public function get_taxname_living_monthly($lst_name){
         // $this->db->where('tax', 'Unemployment'); 
         $this->db->where('created_by', $user_id); 
         $query = $this->db->get();
+     
         if ($query->num_rows() > 0) {
             return $query->result_array();
          }
