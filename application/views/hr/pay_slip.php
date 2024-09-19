@@ -302,10 +302,7 @@ $fs=strtoupper($infoemployee[0]['first_name']);
     ?>
 </th>
                               
-                              
-                              
-                              
-                              <th>YTD(<?php  echo $currency; ?>)</th>
+                  <th>YTD(<?php  echo $currency; ?>)</th>
                            </tr>
                            
                           <?php if ($extra_hour): ?>
@@ -323,6 +320,8 @@ $fs=strtoupper($infoemployee[0]['first_name']);
          <td style="display:none;" id="total_period"><?php echo $aboveytd; ?></td>
         <td><?php echo $above_eth; ?></td>
         <td  id="total_ytd"><?php echo round ($above_ytdeth, 2); ?></td>
+
+        
         <td style="display:none;" id="total_ytd"><?php echo $sum_above; ?></td>
     </tr>
     

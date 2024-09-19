@@ -166,15 +166,14 @@
                   <?php echo form_close() ?>
                </div>
 
-
-
-               
                <br>
 
- 
- <?php  if(trim($taxinfo[0]['tax']) == trim($trimmed_tax))   { ?>
 
-    
+        
+
+               <?php  if(trim($taxinfo[0]['tax']) == trim($trimmed_tax))   { ?>
+
+  
       <div class="  row">
          <div class="   col-sm-12" >
             <div class=" panel panel-default" style="border:3px solid #d7d4d6;margin-left: 15px;width: 1602px;" >
@@ -265,32 +264,14 @@
  
 
                <?php  }  else {  ?>
-     <!-- <div class="  row">
-     <div class="   col-sm-12" >
-        <div class=" panel panel-default" style="border:3px solid #d7d4d6;margin-left: 15px;width: 1602px;" >
-           <div class="panel-body btnclr ">
-              <div class="row">
-                 <h3 class="col-sm-3" style="margin: 0;">WEEKLY PAYROLL</h3>
-                 <div class="col-sm-9 text-right">                    
-                 </div>
-              </div>
-           </div>
-        </div>
-     </div>
-  </div>          -->
    <?php } ?>
-
-  
                <br>
-
- 
-
- 
- 
                <?php  if(trim($taxinfo[0]['tax']) == trim($trimmed_tax_bi))   { ?>
+   
 
-
-<div class="row">
+        
+ 
+<div class="row"> 
    <div class="col-sm-12">
       <div class="panel panel-default" style="border:3px solid #d7d4d6;margin-left:15px;width:1602px;" >
          <div class="panel-body btnclr ">
@@ -378,30 +359,11 @@
                   <?php echo form_close() ?>
                </div>
 
-                <?php  }  else {   ?>
-                   
-                  <!-- <div class="row">
-   <div class="col-sm-12">
-      <div class="panel panel-default" style="border:3px solid #d7d4d6;margin-left:15px;width:1602px;" >
-         <div class="panel-body btnclr ">
-            <div class="row">
-               <h3 class="col-sm-4" style="margin: 0;">BIWEEKLY PAYROLL</h3>
-               <div class="col-sm-8 text-right">                    
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-</div>           -->
+               <?php  }  else {   ?>
         <?php        }?>
-
- 
-
 <br>
-
- 
 <?php  if(trim($taxinfo[0]['tax']) == trim($trimmed_tax_monly))   { ?>
-
+  
 <div class="row">
    <div class="col-sm-12">
       <div class="panel panel-default" style="border:3px solid #d7d4d6;margin-left:15px;width:1602px;" >
@@ -493,16 +455,7 @@
                </div>
  
                <?php  }  else {  ?>
-               
- 
-
-             <?php  }?>
- 
-
-
-
-
-
+                  <?php  }?>
 
 
  
@@ -642,14 +595,7 @@ $(document).ready(function() {
 
 
 
-
-
-
-
-
-
-
-
+ 
 
 
 

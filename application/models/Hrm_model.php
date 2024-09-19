@@ -1274,6 +1274,8 @@ $this->db->where("STR_TO_DATE(SUBSTRING_INDEX(timesheet_info.month, ' - ', -1), 
         }
         return false;
 }
+
+
  public function local_state_tax($employee_status,$final,$local_tax_range){
         $this->db->select('employee,employer');
         $this->db->from('state_localtax');
@@ -2562,18 +2564,37 @@ public function get_taxname_living_monthly($lst_name){
      }
     return true;
 }
-    public function get_employee_sal($id){
+
+    public function get_employee_sal($id , $tax){
         $user_id = $this->session->userdata('user_id');
-        $this->db->select('h_rate,total_hours,extra_thisrate, SUM(extra_thisrate) as totalamout');
+        $this->db->select('h_rate,total_hours,extra_thisrate, SUM(extra_thisrate) as totalamout , SUM(above_extra_sum) as overtime  ');
         $this->db->from('timesheet_info');
         $this->db->where('templ_name', $id); 
+        $this->db->where('payroll_type', $tax); 
         $this->db->where('create_by', $user_id); 
         $query = $this->db->get();
-         if ($query->num_rows() > 0) {
+          if ($query->num_rows() > 0) {
             return $query->result_array();
          }
         return true;
     }
+
+
+
+    public function get_employee_sales_commission($id , $tax){
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('SUM(sales_c_amount) as salescom');
+        $this->db->from('info_payslip');
+        $this->db->where('templ_name', $id); 
+         $this->db->where('create_by', $user_id); 
+         $query = $this->db->get();
+          if ($query->num_rows() > 0) {
+            return $query->result_array();
+         }
+        return true;
+    }
+
+ 
     public function total_unemployment($id){
         $user_id = $this->session->userdata('user_id');
         $this->db->select('SUM(unemployement_total) as unempltotal');
@@ -2591,7 +2612,7 @@ public function get_taxname_living_monthly($lst_name){
  
      public function get_employee_sal_ytd($id){
         $user_id = $this->session->userdata('user_id');
-        $this->db->select('SUM(total_amount) as overalltotal');
+        $this->db->select('SUM(total_amount) as overalltotal ,sc');
         $this->db->from('info_payslip');
         $this->db->where('templ_name', $id); 
         $this->db->where_in('tax', ['Income tax', 'Unemployment']);
@@ -2603,4 +2624,88 @@ public function get_taxname_living_monthly($lst_name){
         return true;
     }
 
+
+
+
+     
+    public function retrieve_state_localtax($tax) {
+        $user_id = $this->session->userdata('user_id');
+
+        $this->db->select('*');
+        $this->db->from('state_localtax');
+        $this->db->where('tax', $tax);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    //state tax - hr
+  
+    public function get_weeklytaxinfo($tax) {
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('*');
+        $this->db->from('weekly_tax_info');
+        $this->db->where('tax', 'Weekly' .' '. $tax);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function retrieveget_weeklytaxinfo($get_tax_name) {
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('*');
+        $this->db->from('weekly_tax_info');
+        $this->db->where('tax', $get_tax_name);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+         return $query->result_array();
+    }
+     
+
+    public function get_biweeklytaxinfo($tax) {
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('*');
+        $this->db->from('biweekly_tax_info');
+        $this->db->where('tax', 'BiWeekly' .' '. $tax);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+
+    public function retrieveget_biweeklytaxinfo($get_tax_name_biweekly) {
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('*');
+        $this->db->from('biweekly_tax_info');
+        $this->db->where('tax', $get_tax_name_biweekly);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+     
+    public function get_tax_name_monthly($tax) {
+        $user_id = $this->session->userdata('user_id');
+
+        $this->db->select('tax');
+        $this->db->from('monthly_tax_info');
+        $this->db->where('tax', 'Monthly' .' '. $tax);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+ 
+    public function retrieveget_monthlytaxinfo($get_tax_name_monthly) {
+        $user_id = $this->session->userdata('user_id');
+        $this->db->select('*');
+        $this->db->from('monthly_tax_info');
+        $this->db->where('tax', $get_tax_name_monthly);
+        $this->db->where('create_by', $user_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+
 }
+
+
+
+
