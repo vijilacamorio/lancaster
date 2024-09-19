@@ -202,7 +202,7 @@ public function statesummaryemployee($limit, $start, $orderField, $orderDirectio
 {
     $user_id = $this->session->userdata('user_id');
     
-    $this->db->select('DISTINCT a.timesheet_id, a.cheque_date, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax, (d.amount) as total_amount', false);
+    $this->db->select('DISTINCT a.timesheet_id, a.cheque_date d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax, (d.amount) as total_amount', false);
     $this->db->from('timesheet_info a');
     $this->db->join('info_payslip b', 'b.templ_name = a.templ_name');
     $this->db->join('employee_history c', 'c.id = b.templ_name');
@@ -1271,7 +1271,6 @@ public function social_tax_sumary($date = null, $emp_name = 'All')
         $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
     }
     $query = $this->db->get();
-    echo $this->db->last_query(); die();
     if ($query->num_rows() > 0) {
         $result = $query->result_array();
         $sums = array();
@@ -1539,14 +1538,11 @@ public function employe($emp_name = null, $date = null)
                  JOIN timesheet_info a ON a.timesheet_id = b.timesheet_id 
                  WHERE b.create_by = '$user_id'";
     
-    if ($date) {
-        $dates = explode(' - ', $date);
-        $start_date = date('Y-m-d', strtotime($dates[0]));
-        $end_date = date('Y-m-d', strtotime($dates[1]));
-        
-        $subquery .= " AND (STR_TO_DATE(a.start, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' 
-                        OR STR_TO_DATE(a.end, '%m/%d/%Y') BETWEEN '$start_date' AND '$end_date' 
-                        OR STR_TO_DATE(a.start, '%m/%d/%Y') <= '$start_date' AND STR_TO_DATE(a.end, '%m/%d/%Y') >= '$end_date')";
+   if ($date) {
+        $dates = explode(' to ', $date);
+        $start_date = $dates[0];
+        $end_date = $dates[1];  
+        $subquery .= " AND (a.cheque_date BETWEEN '$start_date' AND '$end_date')";
     }
 
     if ($emp_name !== 'All') {
