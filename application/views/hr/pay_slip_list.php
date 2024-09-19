@@ -326,9 +326,9 @@ data-supplier="<?php echo $list['extra_this_hour']; ?>">
 <td  data-col="6" class="6"   style="text-align:center;">
 <?php
 if (!empty($list['extra_this_hour'])) {
-echo $list['above_extra_sum'] + $list['extra_thisrate'];
+echo (int)$list['above_extra_sum'] + (int)$list['extra_thisrate'];
 } else {
-echo $list['above_extra_sum'] + 0; // Display 0 when $list['extra_this_hour'] is empty
+echo (int)$list['above_extra_sum'] + (int)0; // Display 0 when $list['extra_this_hour'] is empty
 }
 ?>
 </td>
@@ -362,16 +362,24 @@ $total_hours = 0;
 $extra_this_hour = 0;
 $sales_c_amount = 0;
 
-foreach($dataforpayslip as $sum) {
-$total_hours += $sum['total_hours'];
-$extra_this_hour += $sum['extra_this_hour'];
-$sales_c_amount += $sum['sales_c_amount'];
+foreach ($dataforpayslip as $sum) {
+   $sales_c_amount += $sum['sales_c_amount'];
+  list($hours, $minutes) = explode(':', $sum['total_hours']);
+    $total_hours += ((int)$hours * 60) + (int)$minutes; 
+ list($extra_hours, $extra_minutes) = explode(':', $sum['extra_this_hour']);
+    $extra_this_hour += ((int)$extra_hours * 60) + (int)$extra_minutes; 
 }
+$final_hours = floor($total_hours / 60);
+$final_minutes = $total_hours % 60;
+$total_hours_formatted = sprintf('%02d:%02d', $final_hours, $final_minutes);
+$final_extra_hours = floor($extra_this_hour / 60);
+$final_extra_minutes = $extra_this_hour % 60;
+$extra_this_hour_formatted = sprintf('%02d:%02d', $final_extra_hours, $final_extra_minutes);
 ?>
 
 <tr class="btnclr">
 <td colspan="4" style="text-align:end;">Total :</td>
-<td style="text-align: center;"><?php echo number_format($total_hours, 2); ?></td>
+<td style="text-align: center;"><?php echo ($total_hours_formatted); ?></td>
 
 <td style="text-align:center;">
 <?php
@@ -381,7 +389,7 @@ foreach ($dataforpayslip as $item) {
 if (!empty($item['extra_this_hour'])) {
 $extra_total += $item['above_extra_sum'] + $item['extra_thisrate'];
 } else {
-$extra_total += $item['above_extra_sum'];
+$extra_total += (int)$item['above_extra_sum'];
 }
 }
 }
@@ -389,7 +397,7 @@ echo number_format($extra_total, 2);
 ?>
 </td>
 
-<td style="text-align: center;"><?php echo number_format($extra_this_hour, 2); ?></td>
+<td style="text-align: center;"><?php echo ($extra_this_hour_formatted); ?></td>
 <td style="text-align: center;"><?php echo number_format($sales_c_amount, 2); ?></td>
 <td></td>
 

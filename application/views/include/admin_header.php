@@ -380,30 +380,32 @@
              ?>
       <!-- user 2 -->
       <ul class="sidebar-menu">
-      <li class="<?php echo ($this->uri->segment(1) =='' ? 'active' : ''); ?>">
-         <a href="<?php echo base_url(); ?>"><i class="ti-dashboard"></i> <span><?php  echo display('dashboard'); ?></span>
+      <li class="active">
+         <a href="<?php echo base_url(); ?>/"><i class="ti-dashboard"></i> <span><?php  echo display('dashboard'); ?></span>
          <span class="pull-right-container">
          <span class="label label-success pull-right"></span>
          </span>
          </a>
       </li>
       <?php 
-         foreach($this->session->userdata('admin_data') as $admtest){
+         foreach(  $this->session->userdata('admin_data') as $admtest){
             // echo $admtest; die();
          $split=explode('-',$admtest);
          if(trim($split[0])=='sale'){
           ?>
       <!-- Invoice menu start -->
-      <li class="treeview <?php echo ($this->uri->segment(1) =='Cinvoice' &&  ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''); ?>">
+      <li class="treeview  ">
          <a href="#">
-            <i class="fa fa-balance-scale"></i><span><?php echo display('invoice');?></span>
-            <span class="pull-right-container">
-            <i class="fa fa-angle-left pull-right"></i>
-            </span>
+         <i class="fa fa-balance-scale"></i><span><?php echo display('invoice');?></span>
+         <span class="pull-right-container">
+         <i class="fa fa-angle-left pull-right"></i>
+         </span>
          </a>
-         <ul class="treeview-menu <?php echo ($this->uri->segment(1) =='Cinvoice' &&  ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''); ?>">
-            <li class="treeview  <?php echo ($this->uri->segment(2) =='ManageInvoice') ? 'active' : ''; ?>"><a href="<?php echo base_url(); ?>Cinvoice/ManageInvoice"><?php echo display('Create Invoice');?></a></li>
-            <li class="treeview  "><a href="<?php echo base_url(); ?>Cinvoice/manage_profarma_invoice"><?php echo 'Create Estimate';?></a></li>
+         <ul class="treeview-menu">
+            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_invoice"><?php echo display('Create Invoice');?></a></li>
+            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_profarma_invoice"><?php echo 'Create Estimate';?></a></li>
+            <!-- <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_ocean_export_tracking"><?php echo display('Ocean Export Tracking');?></a></li>
+            <li class="treeview  "><a href="<?php echo base_url(); ?>/Cinvoice/manage_trucking"><?php echo display('Road Transport');?></a></li> -->
          </ul>
       </li>
       <?php 
@@ -743,6 +745,20 @@
             <li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/closing"><?php echo display('closing'); ?></a></li>
             <li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/closing_report"><?php echo display('closing_report'); ?></a></li>
             <li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/all_report"><?php echo  display('todays_report');  ?></a></li>
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/todays_customer_receipt"><?php echo  display('todays_customer_receipt');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/todays_sales_report"><?php  echo display('sales_report'); ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/user_sales_report"><?php  echo display('user_wise_sales_report'); ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/retrieve_dateWise_DueReports"><?php echo  display('due_report');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/retrieve_dateWise_Shippingcost"><?php echo  display('shipping_cost_report');  ?></a></li>-->
+            <!--<li><a href="<?php echo base_url(); ?>/Admin_dashboard/todays_purchase_report"><?php echo  display('purchase_report');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/purchase_report_category_wise"><?php echo  display('purchase_report_category_wise');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/product_sales_reports_date_wise"><?php echo  display('sales_report_product_wise');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/sales_report_category_wise"><?php echo  display('sales_report_category_wise');  ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/sales_return"><?php echo  display('invoice_return');  ?> </a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/supplier_return"><?php echo display('supplier_return'); ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/retrieve_dateWise_tax"><?php echo display('tax_report'); ?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Admin_dashboard/total_profit_report"><?php  echo display('profit_report');?></a></li>-->
+            <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Creport/product_stock"><?php  echo display('stock_report_product_wise');?></a></li>-->
          </ul>
       </li>
       <!-- Report menu end -->
@@ -851,36 +867,36 @@
             <!--<li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/hr_tools"><?php  echo "HR ToolKit";?></a></li>-->
           
            <li class="treeview  ">
-               <a href="#">
-               <i class=""></i> <span><?php echo ('Reports'); ?></span>
-               <span class="pull-right-container">
-               <i class="fa fa-angle-left pull-right"></i>
-               </span>
-               </a>
-               <ul class="treeview-menu">
-                  <!-- <li class="treeview  "><a href=""><?php echo ('Federal Tax');?></a></li> -->
-                   <li class="treeview  ">
-               <a href="#">
-               <i class=""></i> <span><?php echo ('Federal Tax'); ?></span>
-               <span class="pull-right-container">
-               <i class="fa fa-angle-left pull-right"></i>
-               </span>
-               </a>
-               <ul class="treeview-menu">
-                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/federal_tax_report"><?php echo ('Income Tax');?></a></li>
-                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/social_tax_report"><?php echo ('Social Security');?> </a></li>
-                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/medicare_tax_report"><?php echo ('Medicare');?></a></li>
-                    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/unemployment_tax_report"><?php echo ('Unemployment');?></a></li>
-                      <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/federal_summary"><?php echo ('Overall Summary');?></a></li>
-               </ul>
-            </li>
-              <li class="treeview  ">
-              <a href="#">
-               <i class=""></i> <span><?php echo ('State Tax'); ?></span>
-               <span class="pull-right-container">
-               <i class="fa fa-angle-left pull-right"></i>
-               </span>
-               </a>
+                           <a href="#">
+                           <i class=""></i> <span><?php echo ('Reports'); ?></span>
+                           <span class="pull-right-container">
+                           <i class="fa fa-angle-left pull-right"></i>
+                           </span>
+                           </a>
+                           <ul class="treeview-menu">
+                              <!-- <li class="treeview  "><a href=""><?php echo ('Federal Tax');?></a></li> -->
+                               <li class="treeview  ">
+                           <a href="#">
+                           <i class=""></i> <span><?php echo ('Federal Tax'); ?></span>
+                           <span class="pull-right-container">
+                           <i class="fa fa-angle-left pull-right"></i>
+                           </span>
+                           </a>
+                           <ul class="treeview-menu">
+                              <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/federal_tax_report"><?php echo ('Income Tax');?></a></li>
+                              <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/social_tax_report"><?php echo ('Social Security');?> </a></li>
+                              <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/medicare_tax_report"><?php echo ('Medicare');?></a></li>
+                                <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/unemployment_tax_report"><?php echo ('Unemployment');?></a></li>
+                                  <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/federal_summary"><?php echo ('Overall Summary');?></a></li>
+                           </ul>
+                        </li>
+                          <li class="treeview  ">
+                          <a href="#">
+                           <i class=""></i> <span><?php echo ('State Tax'); ?></span>
+                           <span class="pull-right-container">
+                           <i class="fa fa-angle-left pull-right"></i>
+                           </span>
+                           </a>
 
 
                            <ul class="treeview-menu">
@@ -893,7 +909,7 @@
     <?php else : ?>
     <li>No state taxes available</li>
     <?php endif; ?>
-    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/state_summary"><?php echo ('Overall Summary');?></a></li>
+    <li class="treeview  "><a href="<?php echo base_url(); ?>Chrm/state_summary"><?php echo ('Overall Summary');?></a></li>
     </ul>
 
 
@@ -901,11 +917,12 @@
 
                                    
                         </li>
-                    <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_local_tax"><?php  echo ('City Tax');?></a></li>
-                       <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/city_tax_report"><?php  echo ('County Tax');?></a></li>       
+                    <li class="treeview  "><a href="<?php echo base_url(); ?>Chrm/city_local_tax"><?php  echo ('City Tax');?></a></li>
+                       <li class="treeview  "><a href="<?php echo base_url(); ?>Chrm/city_tax_report"><?php  echo ('County Tax');?></a></li>       
                             
-                                 <li class="treeview  "><a href="<?php echo base_url(); ?>/Chrm/other_tax"><?php  echo ('Other Taxes');?></a></li>
-                           </ul>
+                                 <li class="treeview  "><a href="<?php echo base_url(); ?>Chrm/other_tax"><?php  echo ('Other Taxes');?></a></li>
+                             <li class="treeview  "><a href="<?php echo base_url(); ?>Chrm/OverallSummary"><?php echo ('Overall Summary');?></a></li>
+                              </ul>
                         </li>
          </ul>
       </li>

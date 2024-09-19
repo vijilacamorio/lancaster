@@ -1,4 +1,4 @@
-<?php error_reporting(1);  ?>
+<?php error_reporting(0);  ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
 <script type="text/javascript" src="<?php echo base_url()?>assets/js/jquery.base64.js"></script>
@@ -190,7 +190,7 @@
                               </select>
                            </td>
                          
-                            <td class="search_dropdown" style="color: black;">
+                            <!-- <td class="search_dropdown" style="color: black;">
                               <span>Tax Choice </span>
                               <select id="tax_Choice" name='tax_choice' class="tax_choice form-control" >
                                <option value="All">All</option>
@@ -219,7 +219,7 @@
                                  <option value="<?php echo $value['tax']; ?>"><?php echo $value['tax']; ?></option>
                                  <?php } ?>
                               </select>
-                            </td>
+                            </td> -->
 
                            <td class="search_dropdown" style="color: black; position: relative; top: 4px;">
                               <div id="datepicker-container">
@@ -283,14 +283,13 @@
             <div class="panel panel-bd lobidrag" id="printableArea"   style="border: 3px solid #d7d4d6;" >
                <div class="panel-body">
                    <div class="sortableTable__container">
-                    <div class="sortableTable__discard">
-                    </div>
+ <div id='printableArea'>
+    <table class="table table-bordered" cellspacing="0" width="100%"   id="Federall">
+          <thead></thead>
+  <tbody></tbody>
+  <tfoot></tfoot>
+</table>
 
-
-
-
-
-                <div id='printableArea'>
 <table class="table table-bordered" cellspacing="0" width="100%"   id="ProfarmaInvList">
 
 
@@ -312,55 +311,18 @@
    <script src="<?php echo base_url()?>assets/js/jquery.bootgrid.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.0.0-alpha.1/jspdf.plugin.autotable.js"></script>
-   <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>-->
-   <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js'></script>
    <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-debug.js'></script>
-   <!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>-->
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-   <!-- <script  src="<?php //echo base_url() ?>my-assets/js/script.js"></script>  -->
-   <!--<script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>-->
-   <!-- <script  src="<?php //echo base_url() ?>my-assets/js/script.js"></script> -->
-   <script src="<?php echo base_url()?>assets/js/jquery.bootgrid.min.js"></script>
+ <script src="<?php echo base_url()?>assets/js/jquery.bootgrid.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.0.0-alpha.1/jspdf.plugin.autotable.js"></script>
-   <!--<script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>-->
-   
-    <script src="https://cdn.jsdelivr.net/npm/table2excel@1.0.4/dist/table2excel.min.js"></script>
-  
-   <!--<script src="<?php echo base_url()?>assets/js/jquery.bootgrid.min.js"></script>-->
-  
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.0.0-alpha.1/jspdf.plugin.autotable.js"></script>-->
-   <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>-->
-   <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js'></script>-->
-   <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-debug.js'></script>-->
-   <!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>-->
-   <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>-->
-    <!--<script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>-->
-   <!-- <script src="<?php echo base_url()?>assets/js/jquery.bootgrid.min.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>-->
-   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.0.0-alpha.1/jspdf.plugin.autotable.js"></script>-->
-   
-   <!--<script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>-->
-   <!-- The Modal Column Switch -->
-   <div id="myModal_colSwitch" class="modal_colSwitch" >
-   <div class="modal-content_colSwitch" style="width:10%;height:25%;">
-   <span class="close_colSwitch">&times;</span>
-   <input type="checkbox"  data-control-column="1" checked = "checked" class="1"  value="1"/>Sl.No<br>
-   <input type="checkbox"  data-control-column="2" checked = "checked" class="2"  value="2"/>User Name<br>
-   <input type="checkbox"  data-control-column="3" checked = "checked" class="3"   value="3"/> Total Invoice<br>
-   <input type="checkbox"  data-control-column="4" checked = "checked" class="4"   value="4"/>Total Amount<br>
-   </div>
-   </div>
+   <script src="https://cdn.jsdelivr.net/npm/table2excel@1.0.4/dist/table2excel.min.js"></script>
    </div>
    </div>
    </div>
@@ -375,47 +337,6 @@
 <!-- Manage Invoice End -->
 <script type="text/javascript" src="<?php echo base_url()?>my-assets/js/profarma.js"></script>
 <script>
-$(function() {
-  // Initialize the daterangepicker with desired date format
-  $(".daterangepicker-field").daterangepicker({
-    dateFormat: 'mm/dd/yy' // Setting the desired date format
-  });
-});
-
-var csrfName = '<?php echo $this->security->get_csrf_token_name();?>';
-var csrfHash = '<?php echo $this->security->get_csrf_hash();?>';
-
-$(function() {
-  var start = moment().startOf('isoWeek'); // Start of the current week
-  var end = moment().endOf('isoWeek'); // End of the current week
-  var startOfLastWeek = moment().subtract(1, 'week').startOf('week'); // Start of last week
-  var endOfLastWeek = moment().subtract(1, 'week').endOf('week').add(1, 'day'); // End of last week (with one extra day)
-
-  // Function to update the date field
-  function cb(start, end) {
-    $('#daterangepicker-field').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-  }
-
-  // Initialize daterangepicker
-  $('#daterangepicker-field').daterangepicker({
-    startDate: start,
-    endDate: end,
-    ranges: {
-      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-      'Last 90 Days': [moment().subtract(89, 'days'), moment()],
-      'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
-      'All Time': [moment().subtract(50, 'years'), moment()], // Example for 'All Time', adjust as needed
-      'Custom Range': [moment().subtract(1, 'month'), moment()], // Default custom range (can be updated by user)
-      'Last Week Before': [moment().subtract(2, 'week').startOf('week'), moment().subtract(2, 'week').endOf('week')],
-      'Last Week': [startOfLastWeek, endOfLastWeek],
-      'This Week': [moment().startOf('week'), moment().endOf('week')],
-      'This Month': [moment().startOf('month'), moment().endOf('month')],
-      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-    }
-  }, cb);
-});
-
-
 $(document).ready(function(){
    // $('#printableArea').hide();
    function removeDuplicates() {
@@ -458,7 +379,7 @@ $(document).ready(function () {
         $.ajax({
             type: "POST",
             dataType: "json",
-            url: "<?php echo base_url('Chrm/state_tax_search_summary'); ?>",
+            url: "<?php echo base_url('Chrm/Overall_Summary'); ?>",
             data: formData,
             success: function (response) {
                 console.log(response);

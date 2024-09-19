@@ -105,8 +105,8 @@ if (file_exists($logoPath)) {
                </div>
 
               <div class="col-sm-6" style="text-align:left;margin-left:550px; margin-top:-80px; font-size:15px;" >
-                  <b><?php echo display('Invoice Number') ?> :</b><?php  echo $all_invoice[0]['commercial_invoice_number'] ; ?> <br>
-                  <b>  <?php echo ('Date') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b><?php  echo $invoice_detail[0]['date']  ; ?><br>
+                  <b><?php echo display('Invoice Number') ?> :</b>&nbsp;<?php  echo $all_invoice[0]['commercial_invoice_number'] ; ?> <br>
+                  <b>  <?php echo ('Date') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b>&nbsp;<?php  echo $invoice_detail[0]['date']  ; ?><br>
                </div>
 
             </div>
@@ -124,7 +124,7 @@ if (file_exists($logoPath)) {
             
                     <div class="col-sm-6"   style="color:black; font-size:12px;">
                         <div class="col-sm-8"  style="margin-left:25px;">
-                        <b><span style="font-weight:bold;">Company Information</span><br> 
+                        <!-- <b><span style="font-weight:bold;">Company Information</span><br>  -->
                         <b><span style="font-weight:bold;"><?php echo $company[0]['company_name']; ?></span><br>
                         <b><span style="font-weight:1;"><?php echo $company[0]['address']; ?><br>
                         <b><span style="font-weight:1;"><?php echo $company[0]['email']; ?><br>
@@ -157,7 +157,7 @@ if (file_exists($logoPath)) {
         <tbody>
             <tr style="color: black;">
                 <td><?php echo $currency . $all_invoice[0]['gtotal']; ?></td>
-                <td><?php echo $currency . " " . $due_amount; ?></td>
+                <td><?php echo $currency . $due_amount; ?></td>
                 <td><?php echo $payment_type; ?></td>
             </tr>
         </tbody>
@@ -203,7 +203,7 @@ if (file_exists($logoPath)) {
                 
                         <table style="margin-left:550px;font-size:11px;">
                         
-                        <?php if ($company[0]['company_name'] == 'Lancaster Stones LLC'): ?>
+                        <?php if ($company[0]['company_name'] == 'Lancaster Stones'): ?>
                             <?php else: ?>
                                 <tr>
                                     <td>
@@ -223,7 +223,17 @@ if (file_exists($logoPath)) {
                              <td><b><?php echo display('GRAND TOTAL'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <?php echo $currency . $all_invoice[0]['gtotal']; ?></td>
                             </tr>
                             <tr>
-                             <td><b><?php echo display('Amount Paid'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <?php echo $currency . " " . $paid_amount; ?></td>
+                             <td><b><?php echo display('Amount Paid'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> 
+                             
+                             <?php
+                                if (!$paid_amount) {
+                                    echo $currency ." "."0.00";
+                                } else {
+                                    echo $currency ." ".$paid_amount;
+                                }
+                                ?>
+ 
+                            </td>
                             </tr>
                         </table>
                         <br>
