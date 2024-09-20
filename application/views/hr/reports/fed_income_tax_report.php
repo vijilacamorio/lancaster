@@ -78,7 +78,7 @@
                               <th class="text-center"><?php echo ('Employee Tax') ?></th>
                               <th class="text-center"><?php echo ('TimeSheet ID') ?></th>
                               <th class="text-center"><?php echo ('Pay Period') ?></th>
-                              <th class="text-center"><?php echo ('Cheque Date') ?></th>
+                              <th class="text-center"><?php echo ('Date') ?></th>
                               <th class="text-center"><?php echo ('Federal Income Tax') ?></th>
                            </tr>
                         </thead>

@@ -666,7 +666,6 @@ public function federaIndexData()
     $edit           = "";
     $delete         = "";
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['f_ftax']) ? $fed_tax_emplr[$i]['f_ftax'] : 0;
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
@@ -674,7 +673,7 @@ public function federaIndexData()
             "timesheet_id"  => $item["timesheet_id"],
             "month"         => $item["month"],
             "cheque_date"   => $item["cheque_date"],
-            "f_ftax"        => number_format($item['f_ftax'], 2),
+            "f_ftax"        => number_format($item['f_tax'], 2),
         ];
         $data[] = $row;
         $i++;
@@ -722,21 +721,39 @@ public function securitytaxIndexData()
     $i              = $start + 1;
     $edit           = "";
     $delete         = "";
+    $merged_results = [];
+
+    $tax_map = [];
+    foreach ($fed_tax_emplr as $tax_entry) {
+        $tax_map[$tax_entry['timesheet']] = $tax_entry; 
+    }
+
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['s_stax']) ? $fed_tax_emplr[$i]['s_stax'] : 0;
+        $timesheet_id = $item['timesheet'];
+        
+        if (isset($tax_map[$timesheet_id])) {
+            $merged_results[] = array_merge($item, $tax_map[$timesheet_id]);
+        } else {
+            $merged_results[] = $item; 
+        }
+    }
+
+    foreach ($merged_results as $key => $item) { 
+
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
             "employee_tax"  => $item["employee_tax"],
-            "timesheet_id"  => $item["timesheet_id"],
+            "timesheet_id"  => $item["timesheet"],
             "month"         => $item["month"],
             "cheque_date"   => $item["cheque_date"],
-            "s_stax"        => number_format($item['s_stax'], 2),
-            "ts_stax"       => number_format((float) $s_stax_emplr, 2),
+            "s_stax"        => number_format($item['s_tax'], 2),
+            "ts_stax"       => number_format($item['s_stax'], 2),
         ];
         $data[] = $row;
         $i++;
     }
+
     $response = [
         "draw"            => $this->input->post("draw"),
         "recordsTotal"    => $totalItems,
@@ -781,21 +798,40 @@ public function medicaretaxIndexData()
     $i              = $start + 1;
     $edit           = "";
     $delete         = "";
+
+    $merged_results = [];
+
+    $tax_map = [];
+    foreach ($fed_tax_emplr as $tax_entry) {
+        $tax_map[$tax_entry['timesheet']] = $tax_entry; 
+    }
+
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['m_mtax']) ? $fed_tax_emplr[$i]['m_mtax'] : 0;
+        $timesheet_id = $item['timesheet'];
+        
+        if (isset($tax_map[$timesheet_id])) {
+            $merged_results[] = array_merge($item, $tax_map[$timesheet_id]);
+        } else {
+            $merged_results[] = $item; 
+        }
+    }
+
+    foreach ($merged_results as $key => $item) { 
+
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
             "employee_tax"  => $item["employee_tax"],
-            "timesheet_id"  => $item["timesheet_id"],
+            "timesheet_id"  => $item["timesheet"],
             "month"         => $item["month"],
             "cheque_date"   => $item["cheque_date"],
-            "m_mtax"        => number_format($item['m_mtax'], 2),
-            "tm_mtax"        => number_format($s_stax_emplr, 2),
+            "m_mtax"        => number_format($item['m_tax'], 2),
+            "tm_mtax"       => number_format($item['m_mtax'], 2),
         ];
         $data[] = $row;
         $i++;
     }
+    
     $response = [
         "draw"            => $this->input->post("draw"),
         "recordsTotal"    => $totalItems,
@@ -841,17 +877,35 @@ public function unemploymenttaxIndexData()
     $i              = $start + 1;
     $edit           = "";
     $delete         = "";
+
+    $merged_results = [];
+
+    $tax_map = [];
+    foreach ($fed_tax_emplr as $tax_entry) {
+        $tax_map[$tax_entry['timesheet']] = $tax_entry; 
+    }
+
     foreach ($items as $item) {
-        $s_stax_emplr = isset($fed_tax_emplr[$i]['u_utax']) ? $fed_tax_emplr[$i]['u_utax'] : 0;
+        $timesheet_id = $item['timesheet'];
+        
+        if (isset($tax_map[$timesheet_id])) {
+            $merged_results[] = array_merge($item, $tax_map[$timesheet_id]);
+        } else {
+            $merged_results[] = $item; 
+        }
+    }
+
+    foreach ($merged_results as $key => $item) { 
+
         $row = [
             'table_id'      => $i,
             "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
             "employee_tax"  => $item["employee_tax"],
-            "timesheet_id"  => $item["timesheet_id"],
+            "timesheet_id"  => $item["timesheet"],
             "month"         => $item["month"],
             "cheque_date"   => $item["cheque_date"],
-            "u_utax"        => number_format($item['u_utax'], 2),
-            "tu_utax"        => number_format($s_stax_emplr, 2),
+            "u_utax"        => number_format($item['u_tax'], 2),
+            "tu_utax"       => number_format($item['u_utax'], 2),
         ];
         $data[] = $row;
         $i++;

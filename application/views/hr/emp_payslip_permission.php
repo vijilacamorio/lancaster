@@ -11,6 +11,8 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+<!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script> -->
+<!-- <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script> -->
 
 <link href="<?php echo base_url() ?>assets/css/daterangepicker.css" rel="stylesheet">
 <link href="<?php echo base_url() ?>assets/css/style.css" rel="stylesheet">
@@ -882,7 +884,7 @@ $total_c = round($total_c, 2);
 <label for="aadhar">Cheque Date<i class="text-danger">*</i></label> 
  </div>
     <div class="col-sm-6"> 
-<input type="text" id="datepicker" name="cheque_date" value="<?php  echo $time_sheet_data[0]['cheque_date']; ?>"  class="form-control"  requried/><br />
+<input type="text" id="datepicker_cheque" name="cheque_date" value="<?php  echo $time_sheet_data[0]['cheque_date']; ?>"  class="form-control"  requried/><br />
         </div></div>
 </div>
 
@@ -1472,6 +1474,10 @@ function convertToTime(hr,min) {
 
 $(function() {
     $("#datepicker").datepicker({
+        dateFormat: 'mm-dd-yy'  
+    });
+
+    $("#datepicker_cheque").datepicker({
         dateFormat: 'mm-dd-yy'  
     });
 });
