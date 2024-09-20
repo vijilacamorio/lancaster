@@ -1580,7 +1580,7 @@ public function employr($emp_name = null, $date = null)
 {
     $user_id = $this->session->userdata('user_id');
     $this->db->distinct(); 
-    $this->db->select('b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax,c.employee_tax,b.time_sheet_id, c.first_name, c.middle_name, c.last_name'); 
+    $this->db->select('b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax,c.employee_tax,b.time_sheet_id as timesheet, c.first_name, c.middle_name, c.last_name'); 
     $this->db->from('tax_history_employer b');
     $this->db->join('employee_history c', 'c.id = b.employee_id');
     $this->db->join('timesheet_info a', 'a.timesheet_id = b.time_sheet_id');
@@ -1615,7 +1615,7 @@ public function employr($emp_name = null, $date = null)
     
     $query = $this->db->get();
 
-  //  echo $this->db->last_query();die();
+  // echo $this->db->last_query();die();
     return $query->result_array();
 }
 
@@ -4246,7 +4246,7 @@ public function get_taxname_living_biweekly($lst_name){
         
         $subquery .= ")";
 
-        $this->db->select('a.month, b.timesheet_id, c.employee_tax, b.templ_name, a.cheque_date, c.first_name, c.middle_name, c.last_name, b.f_tax AS f_ftax, b.m_tax AS m_mtax, b.s_tax AS s_stax, b.u_tax AS u_utax');
+        $this->db->select('a.month, b.timesheet_id as timesheet, c.employee_tax, b.templ_name, a.cheque_date, c.first_name, c.middle_name, c.last_name, b.f_tax AS f_tax, b.m_tax AS m_tax, b.s_tax AS s_tax, b.u_tax AS u_tax');
         
         $this->db->from('info_payslip b');
         $this->db->join('employee_history c', 'c.id = b.templ_name');
