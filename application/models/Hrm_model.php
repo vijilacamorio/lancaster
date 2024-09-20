@@ -1271,7 +1271,10 @@ public function social_tax_sumary($date = null, $emp_name = 'All')
         $subquery .= " AND (TRIM(CONCAT_WS(' ', c.first_name, c.middle_name, c.last_name)) LIKE '%$trimmed_emp_name%' OR TRIM(CONCAT_WS(' ', c.first_name, c.last_name)) LIKE '%$trimmed_emp_name%')";
     }
     $query = $this->db->get();
+<<<<<<< HEAD
   
+=======
+>>>>>>> af2c8502cf2980555f44a43c6c20fa8b0ed8650d
     if ($query->num_rows() > 0) {
         $result = $query->result_array();
         $sums = array();
